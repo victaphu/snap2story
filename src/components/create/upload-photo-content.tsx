@@ -517,7 +517,7 @@ export function UploadPhotoContent() {
 
         {/* Simple info */}
         <div className="text-center text-sm text-muted-foreground space-y-1">
-          <p>💡 We'll analyze your photo and create a free preview</p>
+          <p>💡 We&apos;ll analyze your photo and create a free preview</p>
           <p>✨ Then generate your full 20-page story for $5</p>
         </div>
       </div>

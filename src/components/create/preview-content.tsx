@@ -145,7 +145,7 @@ export function PreviewContent() {
     return (
       <div className="text-center space-y-4">
         <h1 className="text-2xl font-bold">Preview Not Found</h1>
-        <p className="text-muted-foreground">The preview you're looking for could not be found.</p>
+        <p className="text-muted-foreground">The preview you&apos;re looking for could not be found.</p>
         <Button asChild>
           <Link href="/create">Go Back to Create</Link>
         </Button>
@@ -153,7 +153,7 @@ export function PreviewContent() {
     );
   }
 
-  const currentPageData = previewData.pages[currentPage];
+  console.log(previewData);
 
   return (
     <div className="space-y-4 sm:space-y-6 max-w-6xl mx-auto px-4">
@@ -175,7 +175,7 @@ export function PreviewContent() {
           Preview: {previewData.title}
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Here's your free preview! Pay $5 to generate the complete 20-page story.
+          Here&apos;s your free preview! Pay $5 to generate the complete 20-page story.
         </p>
       </div>
 
@@ -206,7 +206,7 @@ export function PreviewContent() {
                       <div className="text-4xl mb-2">📚</div>
                       <p className="font-semibold text-primary">Cover Generated!</p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        "{previewData.title}"
+                        &ldquo;{previewData.title}&rdquo;
                       </p>
                       <p className="text-xs text-muted-foreground mt-2">
                         AI-personalized for {previewData.heroName}
@@ -216,24 +216,8 @@ export function PreviewContent() {
                 )}
               </div>
               <p className="text-sm text-center text-muted-foreground">
-                {previewData.coverImage ? `AI-generated with book title "${previewData.title}"` : '🎉 Your personalized cover has been created!'}
+                {previewData.coverImage ? `AI-generated with book title &ldquo;${previewData.title}&rdquo;` : '🎉 Your personalized cover has been created!'}
               </p>
-              
-              {/* Show Hero Analysis if available */}
-              {previewData.heroAnalysis && (
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 mt-2">
-                  <h4 className="text-sm font-semibold text-primary text-center mb-2">✨ Based on AI Analysis</h4>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div><span className="font-medium">Age:</span> {previewData.heroAnalysis.age}</div>
-                    <div><span className="font-medium">Hair:</span> {previewData.heroAnalysis.hairColor}</div>
-                    <div><span className="font-medium">Outfit:</span> {previewData.heroAnalysis.clothing}</div>
-                    <div><span className="font-medium">Expression:</span> {previewData.heroAnalysis.expression}</div>
-                  </div>
-                  <p className="text-xs text-center text-muted-foreground mt-2">
-                    Cover matches your photo: {previewData.heroAnalysis.description}
-                  </p>
-                </div>
-              )}
             </div>
 
             {/* Original Image */}
@@ -268,6 +252,58 @@ export function PreviewContent() {
               </p>
             </div>
           </div>
+
+          {/* AI Analysis Panel - Full Width Under Both Images */}
+          {previewData.heroAnalysis && (
+            <div className="mt-6 bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <h4 className="text-lg font-semibold text-primary text-center mb-4 flex items-center justify-center gap-2">
+                ✨ AI Analysis Used for Personalization
+              </h4>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-4">
+                <div className="text-center">
+                  <span className="text-xs text-muted-foreground block">Age</span>
+                  <span className="font-medium text-sm">{previewData.heroAnalysis.age}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-xs text-muted-foreground block">Hair Color</span>
+                  <span className="font-medium text-sm">{previewData.heroAnalysis.hairColor}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-xs text-muted-foreground block">Eye Color</span>
+                  <span className="font-medium text-sm">{previewData.heroAnalysis.eyeColor}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-xs text-muted-foreground block">Complexion</span>
+                  <span className="font-medium text-sm">{previewData.heroAnalysis.complexion}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-xs text-muted-foreground block">Outfit</span>
+                  <span className="font-medium text-sm">{previewData.heroAnalysis.clothing}</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-xs text-muted-foreground block">Expression</span>
+                  <span className="font-medium text-sm">{previewData.heroAnalysis.expression}</span>
+                </div>
+              </div>
+              
+              <div className="bg-background rounded-lg p-3 border">
+                <p className="text-sm text-center text-muted-foreground mb-2">
+                  <span className="font-medium text-foreground">AI Description:</span>
+                </p>
+                <p className="text-sm text-center italic">
+                  &ldquo;{previewData.heroAnalysis.description}&rdquo;
+                </p>
+              </div>
+              
+              <div className="mt-3 text-center">
+                <span className="text-xs text-muted-foreground">
+                  Analysis Confidence: {previewData.heroAnalysis.confidence}/10 • 
+                  This analysis ensures your book cover and story pages accurately represent {previewData.heroName}
+                </span>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
