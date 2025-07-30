@@ -304,6 +304,23 @@ export function PreviewContent() {
               </div>
             </div>
           )}
+
+          {/* Image Inspiration Panel - Show how the uploaded image inspired the cover */}
+          {previewData.imageInspiration && (
+            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="text-lg font-semibold text-blue-800 text-center mb-3 flex items-center justify-center gap-2">
+                🎨 Cover Inspired by Your Photo
+              </h4>
+              <div className="bg-white rounded-lg p-3 border border-blue-100">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  <span className="font-medium">How we used your photo:</span> {previewData.imageInspiration}
+                </p>
+              </div>
+              <p className="text-xs text-center text-muted-foreground mt-2">
+                Our AI analyzed your uploaded photo&apos;s composition, lighting, and mood to create a book cover that feels connected to your original image
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 

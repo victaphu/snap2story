@@ -34,6 +34,7 @@ interface PreviewData {
   originalImage: string;
   storyTemplate: StoryTemplate;
   heroAnalysis?: HeroAnalysis;
+  imageInspiration?: string;
   heroName: string;
   theme: string;
   createdAt: string;
