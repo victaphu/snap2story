@@ -295,6 +295,47 @@ export const STORY_TEMPLATES: StoryTemplate[] = [
       }
     ]
   }
+  ,
+  {
+    id: 'adventure',
+    theme: 'Adventure & Exploration',
+    title: "{heroName}'s Big Adventure",
+    pages: Array.from({ length: 10 }, (_, i) => ({
+      pageNumber: i + 1,
+      text: `Adventure page ${i + 1}: {heroName} explores, discovers, and learns with a brave smile.`,
+      imageDescription: `{heroName} exploring outdoors with curious eyes; bright whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting.`,
+    })),
+  },
+  {
+    id: 'friendship',
+    theme: 'Friendship & Kindness',
+    title: "{heroName}'s Kind Heart",
+    pages: Array.from({ length: 10 }, (_, i) => ({
+      pageNumber: i + 1,
+      text: `Friendship page ${i + 1}: {heroName} shares, helps friends, and spreads kindness.`,
+      imageDescription: `{heroName} playing and helping a friend; bright whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting.`,
+    })),
+  },
+  {
+    id: 'family',
+    theme: 'Family & Home Life',
+    title: "{heroName}'s Cozy Day",
+    pages: Array.from({ length: 10 }, (_, i) => ({
+      pageNumber: i + 1,
+      text: `Family page ${i + 1}: {heroName} enjoys a loving day with family.`,
+      imageDescription: `{heroName} at home with family warmth; bright whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting.`,
+    })),
+  },
+  {
+    id: 'dreams',
+    theme: 'Dreams & Imagination',
+    title: "{heroName}'s Dream Journey",
+    pages: Array.from({ length: 10 }, (_, i) => ({
+      pageNumber: i + 1,
+      text: `Dream page ${i + 1}: {heroName} visits whimsical worlds with gentle wonder.`,
+      imageDescription: `{heroName} in a dreamy, magical scene; bright whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting.`,
+    })),
+  }
 ];
 
 export function getStoryTemplate(themeId: string): StoryTemplate | null {

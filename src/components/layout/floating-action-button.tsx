@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -19,12 +19,12 @@ export function FloatingActionButton({ className, show = true }: FloatingActionB
       size="lg"
       className={cn(
         "desktop:hidden fixed bottom-16 right-4 z-30 h-14 w-14 rounded-full shadow-lg",
-        "bg-coral hover:bg-coral/90 text-white",
+        "bg-gradient-to-br from-violet-500 to-fuchsia-500 hover:brightness-110 text-white",
         className
       )}
     >
       <Link href="/create">
-        <Plus className="h-6 w-6" />
+        <Wand2 className="h-6 w-6" />
         <span className="sr-only">Create new story</span>
       </Link>
     </Button>

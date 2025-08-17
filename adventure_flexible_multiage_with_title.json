@@ -1,0 +1,250 @@
+{
+  "id": "adventure_flexible_multiage",
+  "theme": "Adventure & Exploration",
+  "title": "{heroName}'s Sky-Bridge Adventure",
+  "variables": [
+    "heroName",
+    "friendName",
+    "hero_description",
+    "friend_description",
+    "setting",
+    "animal_type",
+    "guardian_creature",
+    "favourite_food",
+    "pet_name",
+    "dream_goal"
+  ],
+  "notes": "Square book flow. Page 0 = cover/title page. Dedication page follows the cover. Then 10 core spreads (1–10) for 20p. Add bonus spreads (11–15) to reach 30p. Text scales by age group. Image descriptions keep identical art style.",
+  "bookFormat": {
+    "trimSizeInches": {
+      "width": 8.0,
+      "height": 8.0
+    },
+    "bleedSizeInches": {
+      "width": 8.25,
+      "height": 8.25
+    },
+    "safeMarginInches": 0.5
+  },
+  "pages": [
+    {
+      "pageNumber": 0,
+      "kind": "title",
+      "isTitlePage": true,
+      "text": {
+        "0-1": "{heroName}'s Sky-Bridge Adventure",
+        "1-3": "{heroName}'s Sky-Bridge Adventure",
+        "3-4": "{heroName}'s Sky-Bridge Adventure",
+        "5-6": "{heroName}'s Sky-Bridge Adventure",
+        "7-8": "{heroName}'s Sky-Bridge Adventure"
+      },
+      "imageDescription": "Create a high-resolution, square-format (1:1) **cover illustration** for the children's book titled \"{heroName}'s Sky-Bridge Adventure\". Depict {heroName} ({hero_description}) and {friendName} ({friend_description}) standing at the start of a glowing **cloud bridge**, with bright sky and drifting clouds behind. Composition must leave ample blank space at the **top center** for the title and maintain clear margins of at least **1 inch on all sides** to ensure safe trim for an **8x8 inch** book. Ensure the background behind the title area has enough contrast for readability. **Do not render any text** other than painterly shapes; we will overlay the title in post. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "titleOverlay": {
+        "text": "{heroName}'s Sky-Bridge Adventure",
+        "placement": "top-center",
+        "fontGuidance": "Playful, hand-lettered feel; heavy weight; high contrast against background",
+        "safeMarginsInches": 1.0
+      },
+      "artStyleNotes": "Square 8x8 cover; leave clean title band at top; vivid wonder; no AI-drawn text."
+    },
+    {
+      "pageNumber": 0.5,
+      "kind": "dedication",
+      "isDedication": true,
+      "text": {
+        "0-1": "For you, with big love.",
+        "1-3": "For you, with big love and bright skies.",
+        "3-4": "For you—may your days be brave and bright.",
+        "5-6": "For you—may adventures find you, and kindness guide you home.",
+        "7-8": "For you—may curiosity lead your steps and courage keep you company."
+      },
+      "imageDescription": "Simple, minimal square page with a soft vignette and a small decorative motif (tiny stars/bridge icon) near the bottom. Leave a rectangular space centered for a small user photo and a short message (max 250 characters). Keep all content within 0.5 inch safe margins on all sides. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Keep clean whitespace for user message/photo; minimal artwork; gentle tone."
+    },
+    {
+      "pageNumber": 1,
+      "text": {
+        "0-1": "{heroName} wakes. Big day!",
+        "1-3": "{heroName} wakes smiling. Sun peeks in. Something special today.",
+        "3-4": "{heroName} wakes to warm light. A happy shiver says adventure is near.",
+        "5-6": "{heroName} woke to golden morning light. The room hummed with promise—today, a real adventure would begin.",
+        "7-8": "Morning light painted {heroName}’s room gold. Outside, birds called like tiny trumpets. Today wasn’t ordinary—it was the start of something extraordinary."
+      },
+      "imageDescription": "Show {heroName} ({hero_description}) stretching in bed as sunlight streams through curtains. A small backpack, folded map, and snack bag sit ready on the floor. The space feels warm and full of promise. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Hopeful morning; set tone of wonder."
+    },
+    {
+      "pageNumber": 2,
+      "text": {
+        "0-1": "{heroName} meets {friendName}. Let’s go!",
+        "1-3": "{heroName} meets {friendName} at the gate. ‘Let’s go!’",
+        "3-4": "{heroName} met {friendName} by the old gate. Two grins, one goal: adventure.",
+        "5-6": "{heroName} met {friendName} at the weathered gate. With a shared grin, they stepped into the day’s first mystery.",
+        "7-8": "At the creaking wooden gate, {heroName} and {friendName} traded excited grins. Side by side, they stepped into the morning’s first mystery."
+      },
+      "imageDescription": "Depict {heroName} ({hero_description}) and {friendName} ({friend_description}) by a weathered wooden gate. Meadow beyond is misty; a faint path leads into trees. Both carry light packs. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Warm friendship moment; rustic meadow path."
+    },
+    {
+      "pageNumber": 3,
+      "text": {
+        "0-1": "Forest. Quiet. Listen…",
+        "1-3": "Into the forest they go. Shh—listen!",
+        "3-4": "They entered the whispering forest. Leaves tickled light; tiny feet rustled.",
+        "5-6": "They followed the narrow path into the whispering forest, where light dappled leaves and shy {animal_type} peered from branches.",
+        "7-8": "They slipped beneath emerald canopies, where light stitched patterns on the ground and curious {animal_type} watched, blinking like gentle lanterns."
+      },
+      "imageDescription": "Show a dappled- light forest path. {heroName} leads while {friendName} points at shy {animal_type} peeking from branches. Ferns curl at the path’s edges. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Dappled light; introduce {animal_type} motif."
+    },
+    {
+      "pageNumber": 4,
+      "text": {
+        "0-1": "A glowing map! Magic!",
+        "1-3": "A glowing map floats down. ‘Magic!’",
+        "3-4": "A glowing map drifted from nowhere and landed in {heroName}’s hands.",
+        "5-6": "From the quiet air, a glowing map fluttered down to {heroName}. Its lines shimmered, leading toward the “Sky Bridge.”",
+        "7-8": "The air glittered, and a luminous map spiraled into {heroName}’s hands. Ink rivers shimmered toward a place labeled “Sky Bridge.”"
+      },
+      "imageDescription": "Close on {heroName} holding a softly glowing map; light reflects in their eyes. {friendName} leans closer, amazed. The map shows a symbol of a bridge in the clouds. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Introduce quest object; gentle magic."
+    },
+    {
+      "pageNumber": 5,
+      "text": {
+        "0-1": "Snack first. Yum!",
+        "1-3": "They share {favourite_food}. Brave happens on full tummies.",
+        "3-4": "They paused to share {favourite_food}. Bravery is easier with snacks.",
+        "5-6": "They sat on a stump, munching {favourite_food}. Strength and smiles returned for the climb ahead.",
+        "7-8": "On a mossy stump they shared {favourite_food}, trading jokes with crumbs and courage, stocking hearts for the path ahead."
+      },
+      "imageDescription": "Show a small rest: {heroName} and {friendName} sharing {favourite_food} on a stump. Backpacks open; water bottle, compass visible. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Quiet beat; warmth and practicality."
+    },
+    {
+      "pageNumber": 6,
+      "text": {
+        "0-1": "Uh-oh. A cliff.",
+        "1-3": "A tall cliff! ‘We can do it.’",
+        "3-4": "They reached a tall cliff. A rope ladder swayed and waited.",
+        "5-6": "Before them rose a cliff with a rope ladder swaying like a daring invitation. They breathed deep—and climbed.",
+        "7-8": "The cliff stood like a giant’s wall. A rope ladder rattled in the wind, daring them upward. They tightened straps, shared a nod, and began to climb."
+      },
+      "imageDescription": "Low-angle view of a rope ladder on a cliff. {heroName} begins climbing while {friendName} steadies the ladder. Wind lifts hair and leaves. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Tension without fear; upward motion."
+    },
+    {
+      "pageNumber": 7,
+      "text": {
+        "0-1": "Hello, helper!",
+        "1-3": "A friendly {guardian_creature} appears. ‘Need help?’",
+        "3-4": "A friendly {guardian_creature} greeted them near the top with shining eyes.",
+        "5-6": "{guardian_creature} appeared, kind and curious, offering guidance for the trials ahead.",
+        "7-8": "Near the ledge, a kindly {guardian_creature} emerged, voice like bells in the breeze: “Tests await. Courage together—always together.”"
+      },
+      "imageDescription": "Reveal a gentle {guardian_creature} at a ledge—smiling, luminous eyes. {heroName} and {friendName} listen closely. Distant clouds resemble a bridge. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Mentor archetype; foreshadow Sky Bridge."
+    },
+    {
+      "pageNumber": 8,
+      "text": {
+        "0-1": "The riddle gate.",
+        "1-3": "A gate with a riddle: ‘Answer together.’",
+        "3-4": "They reached a gate carved with a riddle only teammates could solve.",
+        "5-6": "At the etched stone gate, they solved a riddle by sharing clues and listening closely.",
+        "7-8": "The stone gate whispered questions. By swapping ideas and listening bravely, they unlocked its secret latch—together."
+      },
+      "imageDescription": "Stone gate with glowing script. {heroName} and {friendName} point to clues, whispering ideas. The gate opens a crack. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Cooperation and problem-solving."
+    },
+    {
+      "pageNumber": 9,
+      "text": {
+        "0-1": "The Sky Bridge!",
+        "1-3": "Across the Sky Bridge they go—slow, steady.",
+        "3-4": "They stepped onto the Sky Bridge, hands linked, steps slow but sure.",
+        "5-6": "They crossed the trembling Sky Bridge together, eyes on the bright horizon.",
+        "7-8": "They set foot on the trembling Sky Bridge, fingers laced, breaths steady, the world falling away into sunlight and soft cloud."
+      },
+      "imageDescription": "A glowing bridge of cloud and light spans a valley. {heroName} and {friendName} cross carefully, hands linked, horizon bright. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Awe; height without fear; shared courage."
+    },
+    {
+      "pageNumber": 10,
+      "text": {
+        "0-1": "We did it! Home.",
+        "1-3": "They made it! Home, hearts bigger.",
+        "3-4": "They returned home shining with stories and braver hearts.",
+        "5-6": "Back home, they placed the map on the shelf and the day in their memories.",
+        "7-8": "At home, they tucked the glowing map away and savored the feeling that bravery grows each time you share it."
+      },
+      "imageDescription": "Evening light in {setting} bedroom/living room. {heroName} and {friendName} place the map on a shelf beside a glowing bottle souvenir. Family/pet wave in background. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Resolution; quiet pride; family warmth."
+    },
+    {
+      "pageNumber": 11,
+      "text": {
+        "0-1": "Cloud friends wave.",
+        "1-3": "Cloud friends wave hello and goodbye.",
+        "3-4": "They spotted cloud-friends waving shapes—dragons, ships, and smiling whales.",
+        "5-6": "They traced castles and dragons in the clouds, promising to return one day.",
+        "7-8": "They named the drifting shapes—castles, ships, a laughing whale—and promised the sky they’d visit again."
+      },
+      "imageDescription": "High viewpoint near bridge. Clouds shaped like friendly creatures drift by; {heroName} and {friendName} wave. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Whimsy; callbacks to adventure.",
+      "bonus": true
+    },
+    {
+      "pageNumber": 12,
+      "text": {
+        "0-1": "Forest friends cheer.",
+        "1-3": "Forest friends cheer and clap leaves.",
+        "3-4": "Back in the forest, {animal_type} chattered, as if clapping with leaves.",
+        "5-6": "Forest friends gathered, chattering and rustling, celebrating the brave travelers.",
+        "7-8": "The forest seemed to applaud—{animal_type} chattered, leaves fluttered, sunlight applauded in specks of gold."
+      },
+      "imageDescription": "Return path with cheering {animal_type} in branches and bushes; sunbeams spotlight the heroes. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Celebration; nature chorus.",
+      "bonus": true
+    },
+    {
+      "pageNumber": 13,
+      "text": {
+        "0-1": "New map glows.",
+        "1-3": "A new glow: another map!",
+        "3-4": "On the shelf, a second map flickered on—new paths!",
+        "5-6": "The first map twinkled, revealing a second journey tucked beneath.",
+        "7-8": "Back on the shelf, the map twinkled—and another trail inked itself into being, inviting tomorrow."
+      },
+      "imageDescription": "Home shelf close-up: first map glows; a second folded map peeks out. {heroName} notices with wide eyes. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Sequel hook; gentle wonder.",
+      "bonus": true
+    },
+    {
+      "pageNumber": 14,
+      "text": {
+        "0-1": "Snack time again.",
+        "1-3": "Snack time! Brave bellies happy.",
+        "3-4": "They shared {favourite_food} again, laughing at crumbly jokes.",
+        "5-6": "They toasted with juice boxes and {favourite_food}, trading the day’s funniest moments.",
+        "7-8": "They celebrated with {favourite_food} and juice, collecting the day’s silliest moments like shiny buttons."
+      },
+      "imageDescription": "Kitchen or picnic scene at {setting}: shared {favourite_food}, clinking juice boxes; pet {pet_name} peeks in. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Light humor; comfort.",
+      "bonus": true
+    },
+    {
+      "pageNumber": 15,
+      "text": {
+        "0-1": "Dreams of bridges.",
+        "1-3": "Sleepy eyes. Dream bridges.",
+        "3-4": "{heroName} yawned. In dreams, bridges grew from stars.",
+        "5-6": "Sleep came soft; in dreams, bridges stitched starlight from hill to hill.",
+        "7-8": "As sleep settled, {heroName} dreamed of bridges woven from moon-threads, spanning every tomorrow."
+      },
+      "imageDescription": "Bedtime scene: {heroName} tucked in; moonlight paints tiny bridge-shapes on the wall; a small star mobile turns slowly. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Gentle bedtime close.",
+      "bonus": true
+    }
+  ]
+}

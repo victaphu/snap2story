@@ -1,0 +1,250 @@
+{
+  "id": "dreams_flexible_multiage",
+  "theme": "Dreams & Imagination",
+  "title": "{heroName} and the Moon-Painted Door",
+  "variables": [
+    "heroName",
+    "friendName",
+    "hero_description",
+    "friend_description",
+    "setting",
+    "animal_type",
+    "guardian_creature",
+    "favourite_food",
+    "pet_name",
+    "dream_goal"
+  ],
+  "notes": "Square flow. Page 0 cover, then dedication, 10 core spreads (1–10) for 20p, bonus 11–15 for 30p. Age-scaled text.",
+  "bookFormat": {
+    "trimSizeInches": {
+      "width": 8.0,
+      "height": 8.0
+    },
+    "bleedSizeInches": {
+      "width": 8.25,
+      "height": 8.25
+    },
+    "safeMarginInches": 0.5
+  },
+  "pages": [
+    {
+      "pageNumber": 0,
+      "kind": "title",
+      "isTitlePage": true,
+      "text": {
+        "0-1": "{heroName} and the Moon-Painted Door",
+        "1-3": "{heroName} and the Moon-Painted Door",
+        "3-4": "{heroName} and the Moon-Painted Door",
+        "5-6": "{heroName} and the Moon-Painted Door",
+        "7-8": "{heroName} and the Moon-Painted Door"
+      },
+      "imageDescription": "Create a high-resolution, square (1:1) cover illustration for the children's book titled \"{heroName} and the Moon-Painted Door\". Depict {heroName} ({hero_description}) and {friendName} ({friend_description}) in a signature scene that matches the theme \"Dreams & Imagination\". Leave a clean band at the top-center for the title; maintain clear margins of at least 1 inch on all sides for an 8x8 inch print. Ensure strong contrast behind the title area. Do not render text; we will overlay typography. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "titleOverlay": {
+        "text": "{heroName} and the Moon-Painted Door",
+        "placement": "top-center",
+        "fontGuidance": "Playful hand-lettered feel; bold; high contrast",
+        "safeMarginsInches": 1.0
+      },
+      "artStyleNotes": "8x8 cover with top title band; no AI text; high-contrast title area."
+    },
+    {
+      "pageNumber": 0.5,
+      "kind": "dedication",
+      "isDedication": true,
+      "text": {
+        "0-1": "For you, with big love.",
+        "1-3": "For you, with big love and bright skies.",
+        "3-4": "For you—may your days be brave and bright.",
+        "5-6": "For you—may adventures find you, and kindness guide you home.",
+        "7-8": "For you—may curiosity lead your steps and courage keep you company."
+      },
+      "imageDescription": "Minimal page with soft vignette and a small decorative motif tied to the theme. Leave centered space for a small user photo and a ≤250‑character message. Keep all content within 0.5 inch safe margins. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Clean whitespace; small motif reflecting theme; gentle tone."
+    },
+    {
+      "pageNumber": 1,
+      "text": {
+        "0-1": "Sleepy eyes.",
+        "1-3": "Sleepy eyes and yawns.",
+        "3-4": "Sleepy eyes at {setting}; the moon winks.",
+        "5-6": "Sleepy eyes at {setting}; the moon taps a silver drum.",
+        "7-8": "Sleepy eyes at {setting}; the moon taps a silver drum."
+      },
+      "imageDescription": "Illustrate the beat: \"Sleepy start\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Sleepy start — warm and inviting."
+    },
+    {
+      "pageNumber": 2,
+      "text": {
+        "0-1": "Moon door appears.",
+        "1-3": "A moon-painted door.",
+        "3-4": "A moon-painted door glows on the wall.",
+        "5-6": "A moon-painted door blooms on the wall, humming softly.",
+        "7-8": "A moon-painted door blooms on the wall, humming softly."
+      },
+      "imageDescription": "Illustrate the beat: \"Moon door\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Moon door — warm and inviting."
+    },
+    {
+      "pageNumber": 3,
+      "text": {
+        "0-1": "Wish key.",
+        "1-3": "A key of wishes.",
+        "3-4": "A key of wishes hangs from a star-thread.",
+        "5-6": "A wish-key dangles from a star-thread, chiming like frost.",
+        "7-8": "A wish-key dangles from a star-thread, chiming like frost."
+      },
+      "imageDescription": "Illustrate the beat: \"Key of wishes\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Key of wishes — warm and inviting."
+    },
+    {
+      "pageNumber": 4,
+      "text": {
+        "0-1": "Open the door.",
+        "1-3": "They open the door.",
+        "3-4": "They open the door to a sky-library of dreams.",
+        "5-6": "They open the door; dreams unfurl like banners over a sky-library.",
+        "7-8": "They open the door; dreams unfurl like banners over a sky-library."
+      },
+      "imageDescription": "Illustrate the beat: \"Open portal\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Open portal — warm and inviting."
+    },
+    {
+      "pageNumber": 5,
+      "text": {
+        "0-1": "Dream guide.",
+        "1-3": "A kind dream guide.",
+        "3-4": "A kind dream guide offers gentle rules.",
+        "5-6": "A kind dream guide explains gentle rules for wonder.",
+        "7-8": "A kind dream guide explains gentle rules for wonder."
+      },
+      "imageDescription": "Illustrate the beat: \"Guide arrives\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Guide arrives — warm and inviting."
+    },
+    {
+      "pageNumber": 6,
+      "text": {
+        "0-1": "Pick a path.",
+        "1-3": "Pick a shining path.",
+        "3-4": "They pick a shining path of {animal_type} constellations.",
+        "5-6": "They choose a path where {animal_type} constellations pad across the dark.",
+        "7-8": "They choose a path where {animal_type} constellations pad across the dark."
+      },
+      "imageDescription": "Illustrate the beat: \"Choose a path\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Choose a path — warm and inviting."
+    },
+    {
+      "pageNumber": 7,
+      "text": {
+        "0-1": "Soft challenge.",
+        "1-3": "A soft challenge appears.",
+        "3-4": "A soft challenge asks for teamwork and patience.",
+        "5-6": "A soft challenge asks for patience, breath, and quiet courage.",
+        "7-8": "A soft challenge asks for patience, breath, and quiet courage."
+      },
+      "imageDescription": "Illustrate the beat: \"Small challenge\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Small challenge — warm and inviting."
+    },
+    {
+      "pageNumber": 8,
+      "text": {
+        "0-1": "Solve with heart.",
+        "1-3": "They solve it with heart.",
+        "3-4": "They solve it with heart and steady breaths.",
+        "5-6": "They solve it with kindness, and the stars lean closer.",
+        "7-8": "They solve it with kindness, and the stars lean closer."
+      },
+      "imageDescription": "Illustrate the beat: \"Solve with heart\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Solve with heart — warm and inviting."
+    },
+    {
+      "pageNumber": 9,
+      "text": {
+        "0-1": "Dream gift.",
+        "1-3": "A small dream gift.",
+        "3-4": "They receive a small dream gift for tomorrow.",
+        "5-6": "They receive a pocket of moonlight to carry into morning.",
+        "7-8": "They receive a pocket of moonlight to carry into morning."
+      },
+      "imageDescription": "Illustrate the beat: \"Gift of dream\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Gift of dream — warm and inviting."
+    },
+    {
+      "pageNumber": 10,
+      "text": {
+        "0-1": "Return gently.",
+        "1-3": "Return gently to bed.",
+        "3-4": "They return gently to bed; dawn listens.",
+        "5-6": "They return gently to bed; dawn listens at the window.",
+        "7-8": "They return gently to bed; dawn listens at the window."
+      },
+      "imageDescription": "Illustrate the beat: \"Return\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Return — warm and inviting."
+    },
+    {
+      "pageNumber": 11,
+      "bonus": true,
+      "text": {
+        "0-1": "Star friends.",
+        "1-3": "Constellation friends wave.",
+        "3-4": "Constellation friends wave from the rails of the sky-library.",
+        "5-6": "Constellation friends wave; the sky rustles with pages.",
+        "7-8": "Constellation friends wave; the sky rustles with pages."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Constellation friends\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Constellation friends — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 12,
+      "bonus": true,
+      "text": {
+        "0-1": "Dream seeds.",
+        "1-3": "Plant dream seeds.",
+        "3-4": "They plant dream seeds in a moon-pot.",
+        "5-6": "They plant dream seeds in a moon-pot; tiny lights sprout.",
+        "7-8": "They plant dream seeds in a moon-pot; tiny lights sprout."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Dream seeds\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Dream seeds — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 13,
+      "bonus": true,
+      "text": {
+        "0-1": "Cloud stairs.",
+        "1-3": "Climb cloud stairs.",
+        "3-4": "They climb cloud stairs to a bell of light.",
+        "5-6": "They climb cloud stairs; a bell of light rings yes.",
+        "7-8": "They climb cloud stairs; a bell of light rings yes."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Cloud stairs\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Cloud stairs — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 14,
+      "bonus": true,
+      "text": {
+        "0-1": "Ink river.",
+        "1-3": "Sail ink river.",
+        "3-4": "They sail an ink river between shelves of sleep.",
+        "5-6": "They sail the ink river; pages whisper maps.",
+        "7-8": "They sail the ink river; pages whisper maps."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Ink river\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Ink river — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 15,
+      "bonus": true,
+      "text": {
+        "0-1": "Sunrise note.",
+        "1-3": "A note for sunrise.",
+        "3-4": "A note for sunrise waits under the pillow.",
+        "5-6": "Under the pillow, a note for sunrise: Be brave, be gentle.",
+        "7-8": "Under the pillow, a note for sunrise: Be brave, be gentle."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Sunrise note\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Sunrise note — gentle epilogue tone."
+    }
+  ]
+}

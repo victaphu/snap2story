@@ -140,3 +140,77 @@ export interface Subtheme {
   image: string;
 }
 
+// New types matching brief-driven schema (profiles/books/book_pages/orders v2/etc.)
+export interface Profile {
+  id: string;
+  clerk_id: string;
+  email: string;
+  points: number;
+  referral_code?: string | null;
+  created_at: string;
+}
+
+export interface Book {
+  id: string;
+  user_id: string; // FK -> profiles.id
+  title?: string | null;
+  theme?: string | null;
+  age_group?: string | null; // e.g., '5-6'
+  length?: number | null; // 10 | 20 | 30
+  mode?: string | null; // quick|pro|chat
+  special_date?: string | null; // ISO date
+  status?: string | null;
+  canva_exported: boolean;
+  created_at: string;
+}
+
+export interface BookPage {
+  id: string;
+  book_id: string;
+  page_number: number;
+  text?: any; // jsonb
+  image_url?: string | null;
+  prompt?: any; // jsonb
+  created_at: string;
+}
+
+export interface OrderV2 {
+  id: string;
+  user_id: string;
+  book_id?: string | null;
+  type: 'digital' | 'canva' | 'print';
+  subtotal_cents: number;
+  tax_cents: number;
+  shipping_cents: number;
+  total_cents: number;
+  stripe_pi?: string | null;
+  lulu_job_id?: string | null;
+  status?: string | null;
+  created_at: string;
+}
+
+export interface Referral {
+  id: string;
+  referrer_id: string; // profiles.id
+  referee_id?: string | null;
+  order_id?: string | null;
+  points_awarded: number;
+  created_at: string;
+}
+
+export interface Reminder {
+  id: string;
+  user_id: string;
+  label?: string | null;
+  date?: string | null; // ISO date
+  notified: boolean;
+  created_at: string;
+}
+
+export interface UploadRecord {
+  id: string;
+  user_id: string;
+  file_url: string;
+  kind: 'hero' | 'friend' | 'pet' | 'pro-image';
+  created_at: string;
+}

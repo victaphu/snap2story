@@ -7,7 +7,8 @@ import {
   Plus, 
   Library, 
   Package, 
-  User 
+  User, 
+  Wand2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NAVIGATION } from '@/lib/constants';
@@ -15,6 +16,7 @@ import { NAVIGATION } from '@/lib/constants';
 const iconMap = {
   home: Home,
   plus: Plus,
+  wand2: Wand2,
   library: Library,
   package: Package,
   user: User,

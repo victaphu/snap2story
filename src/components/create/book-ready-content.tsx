@@ -26,7 +26,7 @@ const bookOptions: BookOption[] = [
   {
     id: 'pdf',
     name: 'Digital PDF',
-    price: PRICING.PDF,
+    price: PRICING.DIGITAL_FULL,
     description: 'Instant download, perfect for sharing',
     features: [
       'High-quality PDF file',

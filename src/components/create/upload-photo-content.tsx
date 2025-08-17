@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { FileUpload } from '@/components/ui/file-upload';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'sonner';
-import { LIMITS, THEMES } from '@/lib/constants';
+import { LIMITS, THEMES, AGE_GROUPS, LENGTHS } from '@/lib/constants';
 import { ProgressSteps } from './progress-steps';
 import { usePreview } from '@/contexts/preview-context';
 import { compressImage, compressBase64Image, getBase64Size } from '@/lib/image-utils';
@@ -24,6 +24,10 @@ export function UploadPhotoContent() {
   const { setPreviewData } = usePreview();
   const mode = searchParams.get('mode') || 'ai-assisted';
   const theme = searchParams.get('theme');
+  const ageParam = searchParams.get('age') || undefined;
+  const lengthParam = searchParams.get('length') || undefined;
+  const [ageGroup, setAgeGroup] = useState<string>(ageParam || (AGE_GROUPS[3]?.id || '5-6'));
+  const [bookLength, setBookLength] = useState<number>(lengthParam ? Number(lengthParam) : 20);
   
   const [titleImage, setTitleImage] = useState<File | null>(null);
   const [titleImageUrl, setTitleImageUrl] = useState<string>('');
@@ -209,6 +213,8 @@ export function UploadPhotoContent() {
           themeId: theme,
           heroAnalysis: mode === 'ai-assisted' ? currentHeroAnalysis : null,
           originalImageBase64,
+          ageGroup: ageGroup,
+          length: bookLength,
         }),
       });
 
@@ -227,9 +233,10 @@ export function UploadPhotoContent() {
       try {
         // Compress the generated image to reduce size further
         const compressedCoverImage = await compressBase64Image(previewData.coverImage, {
-          maxWidth: 512,
-          maxHeight: 512,
-          quality: 0.85,
+          // Further reduce preview size and quality for faster loads
+          maxWidth: 384,
+          maxHeight: 384,
+          quality: 0.6,
           format: 'image/jpeg'
         });
         
@@ -288,7 +295,9 @@ export function UploadPhotoContent() {
           mode: mode,
           heroName: previewData.heroName,
           themeId: previewData.themeId,
-          title: previewData.title
+          title: previewData.title,
+          age: ageGroup,
+          length: String(bookLength)
         });
         
         if (theme) searchParams.set('theme', theme);
@@ -347,7 +356,9 @@ export function UploadPhotoContent() {
           mode: mode,
           heroName: previewData.heroName,
           themeId: previewData.themeId,
-          title: previewData.title
+          title: previewData.title,
+          age: ageGroup,
+          length: String(bookLength)
         });
         
         if (theme) searchParams.set('theme', theme);
@@ -460,6 +471,40 @@ export function UploadPhotoContent() {
         {/* Input Fields */}
         <Card>
           <CardContent className="p-4 sm:p-6 space-y-4">
+            {mode === 'ai-assisted' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+                <div>
+                  <Label className="text-base font-medium">Age Group</Label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {AGE_GROUPS.map((a) => (
+                      <button
+                        key={a.id}
+                        onClick={() => setAgeGroup(a.id)}
+                        className={`px-3 py-2 border rounded-full text-sm ${ageGroup===a.id?'bg-primary text-primary-foreground border-primary':'bg-background hover:bg-muted'}`}
+                        type="button"
+                      >
+                        {a.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-base font-medium">Length</Label>
+                  <div className="flex gap-2 mt-2">
+                    {LENGTHS.map((len) => (
+                      <button
+                        key={String(len)}
+                        onClick={() => setBookLength(len)}
+                        className={`px-4 py-2 border rounded-md text-sm ${bookLength===len?'bg-primary text-primary-foreground border-primary':'bg-background hover:bg-muted'}`}
+                        type="button"
+                      >
+                        {len} pages
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
             {mode === 'ai-assisted' ? (
               <div>
                 <Label htmlFor="hero-name" className="text-base font-medium">Hero Name *</Label>

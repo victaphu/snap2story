@@ -1,0 +1,250 @@
+{
+  "id": "family_flexible_multiage",
+  "theme": "Family & Home Life",
+  "title": "{heroName}'s Busy, Cozy Day",
+  "variables": [
+    "heroName",
+    "friendName",
+    "hero_description",
+    "friend_description",
+    "setting",
+    "animal_type",
+    "guardian_creature",
+    "favourite_food",
+    "pet_name",
+    "dream_goal"
+  ],
+  "notes": "Square flow. Page 0 cover, then dedication, 10 core spreads (1–10) for 20p, bonus 11–15 for 30p. Age-scaled text.",
+  "bookFormat": {
+    "trimSizeInches": {
+      "width": 8.0,
+      "height": 8.0
+    },
+    "bleedSizeInches": {
+      "width": 8.25,
+      "height": 8.25
+    },
+    "safeMarginInches": 0.5
+  },
+  "pages": [
+    {
+      "pageNumber": 0,
+      "kind": "title",
+      "isTitlePage": true,
+      "text": {
+        "0-1": "{heroName}'s Busy, Cozy Day",
+        "1-3": "{heroName}'s Busy, Cozy Day",
+        "3-4": "{heroName}'s Busy, Cozy Day",
+        "5-6": "{heroName}'s Busy, Cozy Day",
+        "7-8": "{heroName}'s Busy, Cozy Day"
+      },
+      "imageDescription": "Create a high-resolution, square (1:1) cover illustration for the children's book titled \"{heroName}'s Busy, Cozy Day\". Depict {heroName} ({hero_description}) and {friendName} ({friend_description}) in a signature scene that matches the theme \"Family & Home Life\". Leave a clean band at the top-center for the title; maintain clear margins of at least 1 inch on all sides for an 8x8 inch print. Ensure strong contrast behind the title area. Do not render text; we will overlay typography. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "titleOverlay": {
+        "text": "{heroName}'s Busy, Cozy Day",
+        "placement": "top-center",
+        "fontGuidance": "Playful hand-lettered feel; bold; high contrast",
+        "safeMarginsInches": 1.0
+      },
+      "artStyleNotes": "8x8 cover with top title band; no AI text; high-contrast title area."
+    },
+    {
+      "pageNumber": 0.5,
+      "kind": "dedication",
+      "isDedication": true,
+      "text": {
+        "0-1": "For you, with big love.",
+        "1-3": "For you, with big love and bright skies.",
+        "3-4": "For you—may your days be brave and bright.",
+        "5-6": "For you—may adventures find you, and kindness guide you home.",
+        "7-8": "For you—may curiosity lead your steps and courage keep you company."
+      },
+      "imageDescription": "Minimal page with soft vignette and a small decorative motif tied to the theme. Leave centered space for a small user photo and a ≤250‑character message. Keep all content within 0.5 inch safe margins. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Clean whitespace; small motif reflecting theme; gentle tone."
+    },
+    {
+      "pageNumber": 1,
+      "text": {
+        "0-1": "Hello, morning!",
+        "1-3": "Morning hugs and sunshine.",
+        "3-4": "Morning at {setting}: hugs, toast, and plans.",
+        "5-6": "Morning at {setting}: toast pops, shoes thump, and love sets the rhythm.",
+        "7-8": "Morning at {setting}: toast pops, shoes thump, and love sets the rhythm."
+      },
+      "imageDescription": "Illustrate the beat: \"Morning routine\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Morning routine — warm and inviting."
+    },
+    {
+      "pageNumber": 2,
+      "text": {
+        "0-1": "Helping hands.",
+        "1-3": "Little helping hands.",
+        "3-4": "{heroName} helps fold, {friendName} feeds {pet_name}.",
+        "5-6": "{heroName} folds towels while {friendName} feeds {pet_name}; small jobs, big pride.",
+        "7-8": "{heroName} folds towels while {friendName} feeds {pet_name}; small jobs, big pride."
+      },
+      "imageDescription": "Illustrate the beat: \"Chores help\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Chores help — warm and inviting."
+    },
+    {
+      "pageNumber": 3,
+      "text": {
+        "0-1": "Shop time.",
+        "1-3": "Shop list, shared cart.",
+        "3-4": "They read the list, count apples, and steer the wobbly cart.",
+        "5-6": "They check the list, count apples in tens, steer the wobbly cart like captains.",
+        "7-8": "They check the list, count apples in tens, steer the wobbly cart like captains."
+      },
+      "imageDescription": "Illustrate the beat: \"Errands\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Errands — warm and inviting."
+    },
+    {
+      "pageNumber": 4,
+      "text": {
+        "0-1": "Stir and mix.",
+        "1-3": "Stir, mix, taste—yum.",
+        "3-4": "They stir, mix, and taste, learning recipes like family songs.",
+        "5-6": "They stir, mix, and taste, measuring love in spoonfuls and laughter.",
+        "7-8": "They stir, mix, and taste, measuring love in spoonfuls and laughter."
+      },
+      "imageDescription": "Illustrate the beat: \"Kitchen fun\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Kitchen fun — warm and inviting."
+    },
+    {
+      "pageNumber": 5,
+      "text": {
+        "0-1": "Clean-up game.",
+        "1-3": "Clean-up turns fun.",
+        "3-4": "They race the timer—tidy becomes a game.",
+        "5-6": "They race the kitchen timer, turning tidy into triumph with silly dances.",
+        "7-8": "They race the kitchen timer, turning tidy into triumph with silly dances."
+      },
+      "imageDescription": "Illustrate the beat: \"Tidy game\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Tidy game — warm and inviting."
+    },
+    {
+      "pageNumber": 6,
+      "text": {
+        "0-1": "Grand visit.",
+        "1-3": "Visit Grandma/Grandpa.",
+        "3-4": "They bring snacks and stories to Grandpa/Grandma.",
+        "5-6": "They visit an elder, sharing snacks, stories, and patient listening.",
+        "7-8": "They visit an elder, sharing snacks, stories, and patient listening."
+      },
+      "imageDescription": "Illustrate the beat: \"Visit elder\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Visit elder — warm and inviting."
+    },
+    {
+      "pageNumber": 7,
+      "text": {
+        "0-1": "Water, grow.",
+        "1-3": "Water plants—grow.",
+        "3-4": "In the garden, they water and whisper wishes to leaves.",
+        "5-6": "They water the garden, whispering wishes; leaves answer with tiny shivers.",
+        "7-8": "They water the garden, whispering wishes; leaves answer with tiny shivers."
+      },
+      "imageDescription": "Illustrate the beat: \"Garden time\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Garden time — warm and inviting."
+    },
+    {
+      "pageNumber": 8,
+      "text": {
+        "0-1": "Puzzle time.",
+        "1-3": "Puzzle pieces fit.",
+        "3-4": "A big puzzle comes together—piece by piece, like family.",
+        "5-6": "A big puzzle comes together—edges first, then the bright middle, like family.",
+        "7-8": "A big puzzle comes together—edges first, then the bright middle, like family."
+      },
+      "imageDescription": "Illustrate the beat: \"Family puzzle\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Family puzzle — warm and inviting."
+    },
+    {
+      "pageNumber": 9,
+      "text": {
+        "0-1": "Story corner.",
+        "1-3": "Story time snuggles.",
+        "3-4": "Story corner: soft lamp, softer voices.",
+        "5-6": "Story corner glows; voices braid the room into calm.",
+        "7-8": "Story corner glows; voices braid the room into calm."
+      },
+      "imageDescription": "Illustrate the beat: \"Story corner\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Story corner — warm and inviting."
+    },
+    {
+      "pageNumber": 10,
+      "text": {
+        "0-1": "Goodnight, home.",
+        "1-3": "Goodnight, cozy home.",
+        "3-4": "Goodnight, {setting}. Thanks for today.",
+        "5-6": "Goodnight, {setting}. The house keeps our stories safe.",
+        "7-8": "Goodnight, {setting}. The house keeps our stories safe."
+      },
+      "imageDescription": "Illustrate the beat: \"Goodnight\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Goodnight — warm and inviting."
+    },
+    {
+      "pageNumber": 11,
+      "bonus": true,
+      "text": {
+        "0-1": "Recipe card.",
+        "1-3": "Write a recipe.",
+        "3-4": "They write a simple family recipe to keep.",
+        "5-6": "They write a simple recipe card, smudged with flour and memory.",
+        "7-8": "They write a simple recipe card, smudged with flour and memory."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Recipe card\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Recipe card — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 12,
+      "bonus": true,
+      "text": {
+        "0-1": "New photo.",
+        "1-3": "Add a new photo.",
+        "3-4": "They add today’s photo to the wall.",
+        "5-6": "They add a photo to the wall—today joining yesterday, frame beside frame.",
+        "7-8": "They add a photo to the wall—today joining yesterday, frame beside frame."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Photo wall\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Photo wall — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 13,
+      "bonus": true,
+      "text": {
+        "0-1": "Call cousin.",
+        "1-3": "Call a cousin hello.",
+        "3-4": "They video chat a cousin and share jokes.",
+        "5-6": "They video-call a cousin; jokes jump oceans easily.",
+        "7-8": "They video-call a cousin; jokes jump oceans easily."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Call a cousin\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Call a cousin — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 14,
+      "bonus": true,
+      "text": {
+        "0-1": "Plan weekend.",
+        "1-3": "Plan a weekend treat.",
+        "3-4": "They plan a small weekend treat together.",
+        "5-6": "They sketch weekend plans, circling small joys on the calendar.",
+        "7-8": "They sketch weekend plans, circling small joys on the calendar."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Plan weekend\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Plan weekend — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 15,
+      "bonus": true,
+      "text": {
+        "0-1": "Dreams, safe.",
+        "1-3": "Sleep safe and loved.",
+        "3-4": "They sleep safe and loved; tomorrow waits kindly.",
+        "5-6": "They sleep safe and loved; tomorrow waits on tiptoe.",
+        "7-8": "They sleep safe and loved; tomorrow waits on tiptoe."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Dreams\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Dreams — gentle epilogue tone."
+    }
+  ]
+}

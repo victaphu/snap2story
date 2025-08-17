@@ -1,0 +1,250 @@
+{
+  "id": "friendship_flexible_multiage",
+  "theme": "Friendship & Kindness",
+  "title": "{heroName} and the Sharing Parade",
+  "variables": [
+    "heroName",
+    "friendName",
+    "hero_description",
+    "friend_description",
+    "setting",
+    "animal_type",
+    "guardian_creature",
+    "favourite_food",
+    "pet_name",
+    "dream_goal"
+  ],
+  "notes": "Square flow. Page 0 cover, then dedication, 10 core spreads (1–10) for 20p, bonus 11–15 for 30p. Age-scaled text.",
+  "bookFormat": {
+    "trimSizeInches": {
+      "width": 8.0,
+      "height": 8.0
+    },
+    "bleedSizeInches": {
+      "width": 8.25,
+      "height": 8.25
+    },
+    "safeMarginInches": 0.5
+  },
+  "pages": [
+    {
+      "pageNumber": 0,
+      "kind": "title",
+      "isTitlePage": true,
+      "text": {
+        "0-1": "{heroName} and the Sharing Parade",
+        "1-3": "{heroName} and the Sharing Parade",
+        "3-4": "{heroName} and the Sharing Parade",
+        "5-6": "{heroName} and the Sharing Parade",
+        "7-8": "{heroName} and the Sharing Parade"
+      },
+      "imageDescription": "Create a high-resolution, square (1:1) cover illustration for the children's book titled \"{heroName} and the Sharing Parade\". Depict {heroName} ({hero_description}) and {friendName} ({friend_description}) in a signature scene that matches the theme \"Friendship & Kindness\". Leave a clean band at the top-center for the title; maintain clear margins of at least 1 inch on all sides for an 8x8 inch print. Ensure strong contrast behind the title area. Do not render text; we will overlay typography. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "titleOverlay": {
+        "text": "{heroName} and the Sharing Parade",
+        "placement": "top-center",
+        "fontGuidance": "Playful hand-lettered feel; bold; high contrast",
+        "safeMarginsInches": 1.0
+      },
+      "artStyleNotes": "8x8 cover with top title band; no AI text; high-contrast title area."
+    },
+    {
+      "pageNumber": 0.5,
+      "kind": "dedication",
+      "isDedication": true,
+      "text": {
+        "0-1": "For you, with big love.",
+        "1-3": "For you, with big love and bright skies.",
+        "3-4": "For you—may your days be brave and bright.",
+        "5-6": "For you—may adventures find you, and kindness guide you home.",
+        "7-8": "For you—may curiosity lead your steps and courage keep you company."
+      },
+      "imageDescription": "Minimal page with soft vignette and a small decorative motif tied to the theme. Leave centered space for a small user photo and a ≤250‑character message. Keep all content within 0.5 inch safe margins. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Clean whitespace; small motif reflecting theme; gentle tone."
+    },
+    {
+      "pageNumber": 1,
+      "text": {
+        "0-1": "{heroName} meets {friendName}. New smiles.",
+        "1-3": "{heroName} and {friendName} meet at the park. New smiles today.",
+        "3-4": "{heroName} and {friendName} met by the swings. Two waves, one plan.",
+        "5-6": "{heroName} and {friendName} met by the bright swings, sharing shy smiles and big plans.",
+        "7-8": "By the bright swings, {heroName} and {friendName} traded shy smiles that bloomed into plans."
+      },
+      "imageDescription": "Illustrate the beat: \"Meet & greet\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Meet & greet — warm and inviting."
+    },
+    {
+      "pageNumber": 2,
+      "text": {
+        "0-1": "Picnic time. Yum!",
+        "1-3": "A picnic blanket! Snacks to share.",
+        "3-4": "A picnic blanket unfurled. They sorted snacks to share.",
+        "5-6": "They spread a picnic blanket and sorted snacks, matching treats so everyone felt included.",
+        "7-8": "They unfurled a cheerful picnic blanket, sorting snacks so everyone felt seen and included."
+      },
+      "imageDescription": "Illustrate the beat: \"Plan a picnic\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Plan a picnic — warm and inviting."
+    },
+    {
+      "pageNumber": 3,
+      "text": {
+        "0-1": "Spilled juice. Oh no!",
+        "1-3": "Juice spills! Sticky surprise.",
+        "3-4": "Uh‑oh—juice spilled. Sticky surprise, careful hands, calm breaths.",
+        "5-6": "Juice flooded the blanket. They paused, breathed, and found napkins—fixing it together.",
+        "7-8": "Juice flooded the blanket. They paused, breathed, and found napkins—fixing it together."
+      },
+      "imageDescription": "Illustrate the beat: \"A problem appears\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "A problem appears — warm and inviting."
+    },
+    {
+      "pageNumber": 4,
+      "text": {
+        "0-1": "Share napkins. We help.",
+        "1-3": "They share napkins and smiles.",
+        "3-4": "They shared napkins, dabbed gently, and giggled at the splashy mess.",
+        "5-6": "They passed napkins, dabbed gently, and turned a mess into a memory with giggles.",
+        "7-8": "They passed napkins, dabbed gently, and turned a mess into a memory with giggles."
+      },
+      "imageDescription": "Illustrate the beat: \"Sharing solution\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Sharing solution — warm and inviting."
+    },
+    {
+      "pageNumber": 5,
+      "text": {
+        "0-1": "Lost teddy. We care.",
+        "1-3": "A friend lost a teddy.",
+        "3-4": "A nearby kid sniffled—a lost teddy. They offered help.",
+        "5-6": "A nearby kid’s eyes shimmered. Teddy was missing. They offered careful help.",
+        "7-8": "A nearby kid’s eyes shimmered. Teddy was missing. They offered careful help."
+      },
+      "imageDescription": "Illustrate the beat: \"New friend needs help\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "New friend needs help — warm and inviting."
+    },
+    {
+      "pageNumber": 6,
+      "text": {
+        "0-1": "Look together. Step by step.",
+        "1-3": "They searched kindly, step by step.",
+        "3-4": "They searched the grass, asked politely, and checked under benches.",
+        "5-6": "They mapped the park with kind questions and careful eyes, checking under benches and bushes.",
+        "7-8": "They mapped the park with kind questions and careful eyes, checking under benches and bushes."
+      },
+      "imageDescription": "Illustrate the beat: \"Kind search\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Kind search — warm and inviting."
+    },
+    {
+      "pageNumber": 7,
+      "text": {
+        "0-1": "Found teddy. Hugs!",
+        "1-3": "They found teddy—soft cheers.",
+        "3-4": "They found teddy by the slide and returned it with gentle words.",
+        "5-6": "By the slide, they found teddy. They kneel, speak softly, and return a friend’s courage.",
+        "7-8": "By the slide, they found teddy. They kneel, speak softly, and return a friend’s courage."
+      },
+      "imageDescription": "Illustrate the beat: \"Find & comfort\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Find & comfort — warm and inviting."
+    },
+    {
+      "pageNumber": 8,
+      "text": {
+        "0-1": "Parade time! Share joy.",
+        "1-3": "They planned a tiny sharing parade.",
+        "3-4": "They planned a tiny “sharing parade,” trading hats and snacks in a loop of joy.",
+        "5-6": "They launched a tiny “sharing parade”—trading hats and snacks, weaving joy in a laughing loop.",
+        "7-8": "They launched a tiny “sharing parade”—trading hats and snacks, weaving joy in a laughing loop."
+      },
+      "imageDescription": "Illustrate the beat: \"Sharing parade idea\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Sharing parade idea — warm and inviting."
+    },
+    {
+      "pageNumber": 9,
+      "text": {
+        "0-1": "March! Kind feet.",
+        "1-3": "March, clap, share—kind feet.",
+        "3-4": "They marched, clapped, and shared, making the park feel like a friendly festival.",
+        "5-6": "They marched and clapped, handing out kindness like confetti until the park felt like a festival.",
+        "7-8": "They marched and clapped, handing out kindness like confetti until the park felt like a festival."
+      },
+      "imageDescription": "Illustrate the beat: \"Parade\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Parade — warm and inviting."
+    },
+    {
+      "pageNumber": 10,
+      "text": {
+        "0-1": "Home hearts bigger.",
+        "1-3": "Home with bigger hearts.",
+        "3-4": "They headed home with bigger hearts and new friends waving.",
+        "5-6": "They headed home with hearts a size larger, new friends waving from the swings.",
+        "7-8": "They headed home with hearts a size larger, new friends waving from the swings."
+      },
+      "imageDescription": "Illustrate the beat: \"Wrap-up\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene, set in {setting} where helpful. Keep expressions warm and engaging. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Wrap-up — warm and inviting."
+    },
+    {
+      "pageNumber": 11,
+      "bonus": true,
+      "text": {
+        "0-1": "Thank-you notes.",
+        "1-3": "They drew thank‑you cards.",
+        "3-4": "They drew bright thank‑you cards for helpers they met.",
+        "5-6": "At home, they drew bright thank‑you cards for every helper they’d met.",
+        "7-8": "At home, they drew bright thank‑you cards for every helper they’d met."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Thank-you cards\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Thank-you cards — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 12,
+      "bonus": true,
+      "text": {
+        "0-1": "Sharing box begins.",
+        "1-3": "They made a share box.",
+        "3-4": "They made a “share box” for toys and books to trade.",
+        "5-6": "They made a little “share box,” trading stories, toys, and tiny courage.",
+        "7-8": "They made a little “share box,” trading stories, toys, and tiny courage."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Share box\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Share box — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 13,
+      "bonus": true,
+      "text": {
+        "0-1": "Snack encore!",
+        "1-3": "Snack encore with laughs.",
+        "3-4": "They shared one last snack and retold the day, laughing at sticky parts.",
+        "5-6": "They shared one last snack, retelling the sticky parts with sparkling laughter.",
+        "7-8": "They shared one last snack, retelling the sticky parts with sparkling laughter."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Picnic encore\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Picnic encore — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 14,
+      "bonus": true,
+      "text": {
+        "0-1": "Parade, again?",
+        "1-3": "Another parade soon?",
+        "3-4": "They penciled a date for the next parade.",
+        "5-6": "They penciled a date for a second parade—kindness loves a sequel.",
+        "7-8": "They penciled a date for a second parade—kindness loves a sequel."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Parade plan 2\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Parade plan 2 — gentle epilogue tone."
+    },
+    {
+      "pageNumber": 15,
+      "bonus": true,
+      "text": {
+        "0-1": "Goodnight, kind day.",
+        "1-3": "Goodnight to a kind day.",
+        "3-4": "Goodnight to a kind day; they slept like held hands.",
+        "5-6": "Goodnight to a kind day; sleep came like two hands held under the quilt.",
+        "7-8": "Goodnight to a kind day; sleep came like two hands held under the quilt."
+      },
+      "imageDescription": "Illustrate the bonus beat: \"Goodnight\" with {heroName} ({hero_description}) and {friendName} ({friend_description}) in scene. Keep continuity with earlier spreads. bright, whimsical storybook style, soft watercolour textures, rounded shapes, expressive faces, warm and inviting lighting",
+      "artStyleNotes": "Bonus: Goodnight — gentle epilogue tone."
+    }
+  ]
+}

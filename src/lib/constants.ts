@@ -7,7 +7,7 @@ export const BREAKPOINTS = {
 export const NAVIGATION = {
   DESKTOP: [
     { id: 'home', label: 'Home', href: '/', icon: 'home' },
-    { id: 'create', label: 'Create', href: '/create', icon: 'plus' },
+    { id: 'create', label: 'Create', href: '/create', icon: 'wand2' },
     { id: 'library', label: 'My Stories', href: '/library', icon: 'library' },
     { id: 'orders', label: 'Orders', href: '/orders', icon: 'package' },
     { id: 'help', label: 'Help', href: '/help', icon: 'help-circle' },
@@ -15,63 +15,72 @@ export const NAVIGATION = {
   ],
   MOBILE: [
     { id: 'home', label: 'Home', href: '/', icon: 'home' },
-    { id: 'create', label: 'Create', href: '/create', icon: 'plus' },
+    { id: 'create', label: 'Create', href: '/create', icon: 'wand2' },
     { id: 'library', label: 'Library', href: '/library', icon: 'library' },
     { id: 'orders', label: 'Orders', href: '/orders', icon: 'package' },
     { id: 'account', label: 'Account', href: '/account', icon: 'user' },
   ],
 } as const;
 
+// Productized themes (fixed 4) per brief
 export const THEMES = [
   {
-    id: 'bedtime',
-    name: 'Bedtime',
-    slug: 'bedtime',
-    description: 'Peaceful stories for bedtime',
-    image: '/themes/bedtime.jpg',
+    id: 'adventure',
+    name: 'Adventure & Exploration',
+    slug: 'adventure',
+    description: 'Curious journeys, discoveries, and brave moments',
+    image: '/themes/adventure.jpg',
+  },
+  {
+    id: 'friendship',
+    name: 'Friendship & Kindness',
+    slug: 'friendship',
+    description: 'Helping others, sharing, and big-hearted teamwork',
+    image: '/themes/friendship.jpg',
   },
   {
     id: 'family',
-    name: 'Family Adventures',
-    slug: 'family-adventures',
-    description: 'Fun family experiences',
+    name: 'Family & Home Life',
+    slug: 'family',
+    description: 'Everyday magic with the people we love',
     image: '/themes/family.jpg',
   },
   {
-    id: 'celebrations',
-    name: 'Celebrations',
-    slug: 'celebrations',
-    description: 'Special occasions and holidays',
-    image: '/themes/celebrations.jpg',
-  },
-  {
-    id: 'travel',
-    name: 'Travel',
-    slug: 'travel',
-    description: 'Adventures around the world',
-    image: '/themes/travel.jpg',
-  },
-  {
-    id: 'places',
-    name: 'Visiting Places',
-    slug: 'visiting-places',
-    description: 'Exploring new locations',
-    image: '/themes/places.jpg',
-  },
-  {
-    id: 'custom',
-    name: 'Customize Your Own',
-    slug: 'custom',
-    description: 'Create your unique story',
-    image: '/themes/custom.jpg',
+    id: 'dreams',
+    name: 'Dreams & Imagination',
+    slug: 'dreams',
+    description: 'Whimsical worlds, bedtime wonder, and cozy scenes',
+    image: '/themes/dreams.jpg',
   },
 ] as const;
 
+// Pricing (USD) per brief
 export const PRICING = {
-  STORY_CREATION: 5, // AI generation fee
-  PDF: 5,
+  DIGITAL_FULL: 14.99, // 20–30 page full digital book
+  CANVA_EXPORT: 4.99,  // add-on to push assets to Canva
+  // Printing is pass-through via Lulu; keep placeholders for UI display when needed
   SOFTCOVER: 25,
   HARDCOVER: 50,
+} as const;
+
+// Age groups per brief
+export const AGE_GROUPS = [
+  { id: '0-1', label: '0–1' },
+  { id: '1-3', label: '1–3' },
+  { id: '3-4', label: '3–4' },
+  { id: '5-6', label: '5–6' },
+  { id: '7-8', label: '7–8' },
+] as const;
+
+// Supported lengths per brief
+export const LENGTHS = [10, 20, 30] as const;
+
+// Free tier configuration
+export const FREE_TIER = {
+  PAGES: 10,
+  WATERMARK: true,
+  DEDICATION_INCLUDED: true,
+  MAX_FREE_BOOKS: 1,
 } as const;
 
 export const LIMITS = {

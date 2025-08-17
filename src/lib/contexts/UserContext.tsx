@@ -2,11 +2,12 @@
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useUserSync } from '../hooks/useUserSync';
-import type { User, UserPreferences } from '../types';
+import type { User, UserPreferences, Profile } from '../types';
 
 interface UserContextType {
   clerkUser: any; // Using any for now to avoid Clerk type conflicts
   dbUser: User | null;
+  profile: Profile | null;
   userPreferences: UserPreferences | null;
   isLoaded: boolean;
   isInitialized: boolean;

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { Plus, Library, HelpCircle, User, BookOpen, Sparkles, Download } from 'lucide-react';
+import { Library, HelpCircle, User, BookOpen, Sparkles, Download, Wand2, CheckCircle2, Info } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -11,9 +11,9 @@ const homeActions = [
     id: 'create',
     title: 'Create a New Story',
     description: 'Upload photos and let AI create your personalized picture book',
-    icon: Plus,
+    icon: Wand2,
     href: '/create',
-    color: 'bg-gradient-to-br from-coral to-coral/80',
+    color: 'bg-gradient-to-br from-violet-500 to-fuchsia-500',
   },
   {
     id: 'library',
@@ -21,7 +21,7 @@ const homeActions = [
     description: 'Browse and manage your created stories',
     icon: Library,
     href: '/library',
-    color: 'bg-gradient-to-br from-primary to-primary/80',
+    color: 'bg-gradient-to-br from-sky-500 to-cyan-500',
   },
   {
     id: 'help',
@@ -29,7 +29,7 @@ const homeActions = [
     description: 'Get help with creating your stories',
     icon: HelpCircle,
     href: '/help',
-    color: 'bg-gradient-to-br from-soft-blue to-soft-blue/80',
+    color: 'bg-gradient-to-br from-indigo-500 to-blue-500',
   },
   {
     id: 'account',
@@ -37,7 +37,7 @@ const homeActions = [
     description: 'Manage your profile and preferences',
     icon: User,
     href: '/account',
-    color: 'bg-gradient-to-br from-lavender to-lavender/80',
+    color: 'bg-gradient-to-br from-emerald-500 to-teal-500',
   },
 ];
 
@@ -189,7 +189,7 @@ function LandingPage() {
 
 function AuthenticatedHome({ user }: { user: any }) {
   return (
-    <div className="space-y-3 sm:space-y-8 pb-20 sm:pb-0">
+    <div className="space-y-3 sm:space-y-8 pb-16 sm:pb-0 pb-[env(safe-area-inset-bottom)]">
       {/* Welcome back section */}
       <div className="text-center space-y-2 sm:space-y-4 px-2 sm:px-0">
         <h1 className="text-2xl sm:text-5xl font-bold tracking-tight text-foreground">
@@ -210,7 +210,7 @@ function AuthenticatedHome({ user }: { user: any }) {
               key={action.id} 
               className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-2 hover:border-primary/30 flex flex-col"
             >
-              <CardContent className="p-3 sm:p-8 flex flex-col flex-1">
+              <CardContent className="p-3 sm:p-8 pb-2 sm:pb-6 flex flex-col flex-1">
                 <div className="flex-1">
                   <Link href={action.href} className="block space-y-2 sm:space-y-4 text-center sm:text-left">
                     <div className={`w-12 h-12 sm:w-20 sm:h-20 rounded-lg ${action.color} flex items-center justify-center transition-transform duration-200 mx-auto sm:mx-0`}>
@@ -231,8 +231,7 @@ function AuthenticatedHome({ user }: { user: any }) {
                 <Button 
                   asChild
                   variant="default" 
-                  size="lg"
-                  className="w-full text-xs sm:text-lg py-3 sm:py-8 font-semibold mt-2 sm:mt-4"
+                  className="w-full h-10 sm:h-11 text-sm sm:text-base py-2 sm:py-3 px-4 sm:px-6 font-semibold mt-0 sm:mt-3"
                 >
                   <Link href={action.href}>
                     Get Started
@@ -242,6 +241,43 @@ function AuthenticatedHome({ user }: { user: any }) {
             </Card>
           );
         })}
+      </div>
+
+      {/* At a glance: brief guidance for clarity */}
+      <div className="max-w-4xl mx-auto px-2 sm:px-0 grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6">
+        <Card className="border-2">
+          <CardContent className="p-4 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white">
+              <Wand2 className="h-5 w-5" />
+            </div>
+            <div className="text-sm">
+              <div className="font-semibold">Start a new book</div>
+              <div className="text-muted-foreground">Pick a mode that fits: AI-assisted, Editor, or Custom.</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-2">
+          <CardContent className="p-4 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center text-white">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+            <div className="text-sm">
+              <div className="font-semibold">Preview, then continue</div>
+              <div className="text-muted-foreground">Generate a cover and outline. Choose free sample or full book.</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-2">
+          <CardContent className="p-4 flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center text-white">
+              <Info className="h-5 w-5" />
+            </div>
+            <div className="text-sm">
+              <div className="font-semibold">Where to find things</div>
+              <div className="text-muted-foreground">Your drafts and finished books live in Library. Help is always one tap away.</div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Book structure info - Simplified for mobile */}

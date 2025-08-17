@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { DatabaseService } from '../services/database';
-import type { User, UserPreferences } from '../types';
+import { DatabaseService, BriefDB } from '../services/database';
+import type { User, UserPreferences, Profile } from '../types';
 
 export function useUserSync() {
   const { user: clerkUser, isLoaded } = useUser();
   const [dbUser, setDbUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -19,7 +20,7 @@ export function useUserSync() {
       }
 
       try {
-        // Create or update user in Supabase
+        // Create or update legacy user in Supabase (back-compat)
         const userData = {
           email: clerkUser.primaryEmailAddress?.emailAddress || '',
           first_name: clerkUser.firstName || '',
@@ -29,6 +30,13 @@ export function useUserSync() {
 
         const user = await DatabaseService.createOrUpdateUser(clerkUser.id, userData);
         setDbUser(user);
+
+        // Create or update profile (new schema)
+        const p = await BriefDB.upsertProfileByClerk(
+          clerkUser.id,
+          clerkUser.primaryEmailAddress?.emailAddress || ''
+        );
+        setProfile(p);
 
         // Load user preferences
         if (user) {
@@ -83,6 +91,7 @@ export function useUserSync() {
   return {
     clerkUser,
     dbUser,
+    profile,
     userPreferences,
     isLoaded,
     isInitialized,

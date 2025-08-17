@@ -10,3 +10,15 @@ export const supabaseAdmin = createClient(
   supabaseUrl,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+// Create a client that forwards an external JWT (e.g., Clerk) for Supabase RLS
+// Requires configuring Supabase to accept external JWTs or a proxy validating the token.
+export function createAuthedSupabase(externalJwt: string) {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${externalJwt}`,
+      },
+    },
+  });
+}

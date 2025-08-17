@@ -33,6 +33,29 @@ export async function POST(request: NextRequest) {
       mimeType = imageFile.type;
     }
 
+    // If mocking is enabled, return a canned analysis with the original image
+    const MOCK = (process.env.MOCK_ANALYSIS || '').toLowerCase() === 'true';
+    if (MOCK) {
+      const mockAnalysis = {
+        age: 'child',
+        hairColor: 'brown',
+        eyeColor: 'unknown',
+        complexion: 'fair',
+        clothing: 'casual',
+        expression: 'happy',
+        distinctiveFeatures: 'friendly smile',
+        suggestedName: 'Alex',
+        confidence: 10,
+        description: 'A cheerful child with a bright, friendly smile.',
+        mockedAnalysis: true,
+      };
+      return NextResponse.json({
+        success: true,
+        analysis: mockAnalysis,
+        originalImage: `data:${mimeType};base64,${base64Image}`,
+      });
+    }
+
     // Analyze the image using GPT-4O Vision
     const analysis = await openai.chat.completions.create({
       model: "gpt-4o",

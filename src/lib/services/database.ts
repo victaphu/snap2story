@@ -1,14 +1,21 @@
 import { supabase, supabaseAdmin } from './supabase';
-import type { 
-  User, 
-  Story, 
-  StoryPage, 
-  CustomStory, 
-  CustomPage, 
-  Order, 
-  StorySample, 
-  UserPreferences, 
-  AnalyticsEvent 
+import type {
+  User,
+  Story,
+  StoryPage,
+  CustomStory,
+  CustomPage,
+  Order,
+  StorySample,
+  UserPreferences,
+  AnalyticsEvent,
+  Profile,
+  Book,
+  BookPage,
+  OrderV2,
+  Referral,
+  Reminder,
+  UploadRecord,
 } from '../types';
 
 export class DatabaseService {
@@ -554,5 +561,215 @@ export class DatabaseService {
     );
 
     return storiesWithPages;
+  }
+}
+
+// Brief-driven API (profiles/books/etc.) aligned to new schema.
+export class BriefDB {
+  // Profiles
+  static async upsertProfileByClerk(clerkId: string, email: string): Promise<Profile | null> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert({ clerk_id: clerkId, email }, { onConflict: 'clerk_id' })
+      .select()
+      .single();
+    if (error) {
+      console.error('profiles upsert error:', error);
+      return null;
+    }
+    return data as Profile;
+  }
+
+  static async getProfileByClerk(clerkId: string): Promise<Profile | null> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('clerk_id', clerkId)
+      .single();
+    if (error) return null;
+    return data as Profile;
+  }
+
+  // Books
+  static async createBook(userId: string, payload: Partial<Book>): Promise<Book | null> {
+    const { data, error } = await supabase
+      .from('books')
+      .insert({ user_id: userId, ...payload })
+      .select()
+      .single();
+    if (error) {
+      console.error('books insert error:', error);
+      return null;
+    }
+    return data as Book;
+  }
+
+  static async getBook(bookId: string): Promise<Book | null> {
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .eq('id', bookId)
+      .single();
+    if (error) return null;
+    return data as Book;
+  }
+
+  static async getUserBooks(userId: string): Promise<Book[]> {
+    const { data, error } = await supabase
+      .from('books')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) return [];
+    return (data || []) as Book[];
+  }
+
+  static async updateBook(bookId: string, updates: Partial<Book>): Promise<Book | null> {
+    const { data, error } = await supabase
+      .from('books')
+      .update(updates)
+      .eq('id', bookId)
+      .select()
+      .single();
+    if (error) return null;
+    return data as Book;
+  }
+
+  static async deleteBook(bookId: string): Promise<boolean> {
+    const { error } = await supabase.from('books').delete().eq('id', bookId);
+    return !error;
+  }
+
+  // Book pages
+  static async upsertBookPages(pages: Omit<BookPage, 'id' | 'created_at'>[]): Promise<BookPage[]> {
+    const { data, error } = await supabase
+      .from('book_pages')
+      .upsert(pages, { onConflict: 'book_id,page_number' })
+      .select();
+    if (error) {
+      console.error('book_pages upsert error:', error);
+      return [];
+    }
+    return (data || []) as BookPage[];
+  }
+
+  static async getBookPages(bookId: string): Promise<BookPage[]> {
+    const { data, error } = await supabase
+      .from('book_pages')
+      .select('*')
+      .eq('book_id', bookId)
+      .order('page_number');
+    if (error) return [];
+    return (data || []) as BookPage[];
+  }
+
+  // Orders v2
+  static async createOrder(userId: string, payload: Omit<OrderV2, 'id' | 'user_id' | 'created_at'>): Promise<OrderV2 | null> {
+    const { data, error } = await supabase
+      .from('orders')
+      .insert({ user_id: userId, ...payload })
+      .select()
+      .single();
+    if (error) {
+      console.error('orders insert error:', error);
+      return null;
+    }
+    return data as OrderV2;
+  }
+
+  static async getUserOrders(userId: string): Promise<OrderV2[]> {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) return [];
+    return (data || []) as OrderV2[];
+  }
+
+  static async updateOrder(orderId: string, updates: Partial<OrderV2>): Promise<OrderV2 | null> {
+    const { data, error } = await supabase
+      .from('orders')
+      .update(updates)
+      .eq('id', orderId)
+      .select()
+      .single();
+    if (error) return null;
+    return data as OrderV2;
+  }
+
+  // Referrals
+  static async addReferral(payload: Omit<Referral, 'id' | 'created_at'>): Promise<Referral | null> {
+    const { data, error } = await supabase.from('referrals').insert(payload).select().single();
+    if (error) return null;
+    return data as Referral;
+  }
+  static async getReferrals(referrerId: string): Promise<Referral[]> {
+    const { data, error } = await supabase
+      .from('referrals')
+      .select('*')
+      .eq('referrer_id', referrerId)
+      .order('created_at', { ascending: false });
+    if (error) return [];
+    return (data || []) as Referral[];
+  }
+
+  // Reminders
+  static async addReminder(userId: string, payload: Partial<Reminder>): Promise<Reminder | null> {
+    const { data, error } = await supabase
+      .from('reminders')
+      .insert({ user_id: userId, ...payload })
+      .select()
+      .single();
+    if (error) return null;
+    return data as Reminder;
+  }
+  static async listReminders(userId: string): Promise<Reminder[]> {
+    const { data, error } = await supabase
+      .from('reminders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('date');
+    if (error) return [];
+    return (data || []) as Reminder[];
+  }
+
+  // Uploads
+  static async addUpload(userId: string, fileUrl: string, kind: UploadRecord['kind']): Promise<UploadRecord | null> {
+    const { data, error } = await supabase
+      .from('uploads')
+      .insert({ user_id: userId, file_url: fileUrl, kind })
+      .select()
+      .single();
+    if (error) return null;
+    return data as UploadRecord;
+  }
+  static async listUploads(userId: string): Promise<UploadRecord[]> {
+    const { data, error } = await supabase
+      .from('uploads')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) return [];
+    return (data || []) as UploadRecord[];
+  }
+
+  // Loyalty points
+  static async incrementPoints(profileId: string, delta: number): Promise<Profile | null> {
+    // Fetch current points, then update with increment
+    const { data: current, error: fetchErr } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', profileId)
+      .single();
+    if (fetchErr || !current) return null;
+    const next = (current.points || 0) + delta;
+    const { data: updated } = await supabase
+      .from('profiles')
+      .update({ points: next })
+      .eq('id', profileId)
+      .select()
+      .single();
+    return (updated || null) as Profile | null;
   }
 }

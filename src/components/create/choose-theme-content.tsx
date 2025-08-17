@@ -3,19 +3,18 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Moon, Users, PartyPopper, MapPin, Plane, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Compass, Heart, Home, Moon, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { THEMES } from '@/lib/constants';
 import { ProgressSteps } from './progress-steps';
 
-const themeIcons = {
-  bedtime: Moon,
-  'family-adventures': Users,
-  celebrations: PartyPopper,
-  travel: Plane,
-  'visiting-places': MapPin,
+const themeIcons: Record<string, any> = {
+  adventure: Compass,
+  friendship: Heart,
+  family: Home,
+  dreams: Moon,
   custom: Sparkles,
 };
 
