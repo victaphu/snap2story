@@ -18,23 +18,7 @@ export default function RootLayout({
   const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
   const isValidKey = publishableKey && publishableKey !== '' && !publishableKey.includes('placeholder');
   
-  // For development/build without valid Clerk setup
-  if (!isValidKey) {
-    return (
-      <html lang="en">
-        <body className="antialiased">
-          <PreviewProvider>
-            <AppLayout>
-              {children}
-            </AppLayout>
-          </PreviewProvider>
-          <Toaster />
-        </body>
-      </html>
-    );
-  }
-  
-  return (
+  const content = isValidKey ? (
     <ClerkProvider 
       publishableKey={publishableKey}
       appearance={{
@@ -44,16 +28,29 @@ export default function RootLayout({
         }
       }}
     >
-      <html lang="en">
-        <body className="antialiased">
-          <PreviewProvider>
-            <AppLayout>
-              {children}
-            </AppLayout>
-          </PreviewProvider>
-          <Toaster />
-        </body>
-      </html>
+      <PreviewProvider>
+        <AppLayout>
+          {children}
+        </AppLayout>
+      </PreviewProvider>
+      <Toaster />
     </ClerkProvider>
+  ) : (
+    <>
+      <PreviewProvider>
+        <AppLayout>
+          {children}
+        </AppLayout>
+      </PreviewProvider>
+      <Toaster />
+    </>
+  );
+  
+  return (
+    <html lang="en">
+      <body className="antialiased">
+        {content}
+      </body>
+    </html>
   );
 }
