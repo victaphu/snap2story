@@ -12,7 +12,7 @@ import { FileUpload } from '@/components/ui/file-upload';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'sonner';
 import { AGE_GROUPS, LENGTHS, LIMITS, PRICING, THEMES } from '@/lib/constants';
-import { compressImage, getBase64Size } from '@/lib/image-utils';
+import { compressImage, getBase64Size, padBase64ToSquare } from '@/lib/image-utils';
 import { usePreview } from '@/contexts/preview-context';
 
 export function QuickCreateContent() {
@@ -23,6 +23,7 @@ export function QuickCreateContent() {
   const [theme, setTheme] = useState<string>('');
   const [age, setAge] = useState<string>('');
   const [length, setLength] = useState<number>(20);
+  const [styleKey, setStyleKey] = useState<'anime'|'comic-book'|'childrens-cartoon'>('childrens-cartoon');
   const [titleImage, setTitleImage] = useState<File | null>(null);
   const [titleImageUrl, setTitleImageUrl] = useState<string>('');
   const [heroName, setHeroName] = useState<string>('');
@@ -44,6 +45,7 @@ export function QuickCreateContent() {
         if (s.theme) { setTheme(s.theme); restoredTheme = s.theme; }
         if (s.age) { setAge(s.age); restoredAge = s.age; }
         if (typeof s.length === 'number') setLength(s.length);
+        if (s.styleKey) setStyleKey(s.styleKey);
         if (s.heroName) setHeroName(s.heroName);
         if (s.friendName) setFriendName(s.friendName);
         if (s.originalImageBase64) {
@@ -65,13 +67,14 @@ export function QuickCreateContent() {
       theme,
       age,
       length,
+      styleKey,
       heroName,
       friendName,
       originalImageBase64,
       currentStep,
     };
     try { sessionStorage.setItem('quick_create_state', JSON.stringify(state)); } catch {}
-  }, [theme, age, length, heroName, friendName, originalImageBase64, currentStep]);
+  }, [theme, age, length, styleKey, heroName, friendName, originalImageBase64, currentStep]);
 
   const handleImageUpload = async (files: File[]) => {
     if (files.length === 0) return;
@@ -81,12 +84,13 @@ export function QuickCreateContent() {
 
     toast.info('Compressing image...');
     try {
-      const compressed = await compressImage(file, {
+      let compressed = await compressImage(file, {
         maxWidth: 512,
         maxHeight: 512,
         quality: 0.85,
         format: 'image/jpeg',
       });
+      try { compressed = await padBase64ToSquare(compressed, 512, '#ffffff', 'image/jpeg', 0.9); } catch {}
       setOriginalImageBase64(compressed);
       const size = getBase64Size(compressed);
       toast.success(`Compressed to ${size.mb.toFixed(2)}MB`);
@@ -134,6 +138,7 @@ export function QuickCreateContent() {
           originalImageBase64: originalImageBase64,
           ageGroup: age,
           length,
+          styleKey,
         }),
       });
       console.log(genRes);
@@ -153,6 +158,7 @@ export function QuickCreateContent() {
           theme,
           age,
           length,
+          styleKey,
           heroName,
           friendName,
           originalImageBase64,
@@ -167,6 +173,7 @@ export function QuickCreateContent() {
         title: preview.title,
         age,
         length: String(length),
+        style: styleKey,
       });
       router.push(`/create/preview?${sp.toString()}`);
     } catch (e) {

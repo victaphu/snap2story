@@ -1,0 +1,4 @@
+-- Deprecated migration: placeholders are now inferred from story_templates JSON
+-- and per-book values are stored in public.book_placeholder_values.
+-- See migrations 2025-08-23_* for the current schema.
+-- This file intentionally left as a no-op to avoid reapplying legacy schema.

@@ -51,13 +51,32 @@ export function compressImage(
       // Draw and compress
       ctx?.drawImage(img, 0, 0, width, height);
       
-      // Convert to compressed base64
-      const compressedDataUrl = canvas.toDataURL(format, quality);
-      resolve(compressedDataUrl);
+      try {
+        // Convert to compressed base64
+        const compressedDataUrl = canvas.toDataURL(format, quality);
+        resolve(compressedDataUrl);
+      } catch (e) {
+        // SecurityError: canvas tainted. Fallback to original file as data URL.
+        try {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ''));
+          reader.onerror = () => reject(e);
+          reader.readAsDataURL(file);
+        } catch {
+          reject(e as any);
+        }
+      }
     };
 
     img.onerror = () => reject(new Error('Failed to load image'));
-    img.src = URL.createObjectURL(file);
+    // Use FileReader to ensure same-origin data URL (avoids tainting for local file)
+    const reader = new FileReader();
+    reader.onload = () => {
+      (img as any).crossOrigin = 'anonymous';
+      img.src = String(reader.result || '');
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
   });
 }
 
@@ -74,6 +93,11 @@ export function compressBase64Image(
     quality = 0.8,
     format = 'image/jpeg'
   } = options;
+
+  // If input isn't a data URL, avoid canvas (which would taint without CORS)
+  if (!base64?.startsWith('data:')) {
+    return Promise.resolve(base64);
+  }
 
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
@@ -103,12 +127,18 @@ export function compressBase64Image(
       // Draw and compress
       ctx?.drawImage(img, 0, 0, width, height);
       
-      // Convert to compressed base64
-      const compressedDataUrl = canvas.toDataURL(format, quality);
-      resolve(compressedDataUrl);
+      try {
+        // Convert to compressed base64
+        const compressedDataUrl = canvas.toDataURL(format, quality);
+        resolve(compressedDataUrl);
+      } catch (e) {
+        // Tainted canvas fallback: return original
+        resolve(base64);
+      }
     };
 
     img.onerror = () => reject(new Error('Failed to load image'));
+    (img as any).crossOrigin = 'anonymous';
     img.src = base64;
   });
 }
@@ -125,4 +155,53 @@ export function getBase64Size(base64: string): { bytes: number; mb: number } {
   const mb = bytes / (1024 * 1024);
   
   return { bytes, mb };
+}
+
+/**
+ * Pad a base64 image to a square canvas with background fill (whitespace) and return as data URL.
+ */
+export function padBase64ToSquare(
+  base64: string,
+  size: number = 512,
+  background: string = '#ffffff',
+  format: 'image/jpeg' | 'image/png' = 'image/jpeg',
+  quality: number = 0.9
+): Promise<string> {
+  // If input isn't a data URL, avoid canvas to prevent tainting
+  if (!base64?.startsWith('data:')) {
+    return Promise.resolve(base64);
+  }
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = size;
+      canvas.height = size;
+      // Fill background
+      if (ctx) {
+        ctx.fillStyle = background;
+        ctx.fillRect(0, 0, size, size);
+        // Compute scaled fit within square, preserving aspect ratio
+        const ratio = Math.min(size / img.width, size / img.height);
+        const w = Math.round(img.width * ratio);
+        const h = Math.round(img.height * ratio);
+        const x = Math.round((size - w) / 2);
+        const y = Math.round((size - h) / 2);
+        ctx.drawImage(img, x, y, w, h);
+        try {
+          resolve(canvas.toDataURL(format, quality));
+        } catch (e) {
+          // Tainted canvas fallback: return original
+          resolve(base64);
+        }
+      } else {
+        reject(new Error('Canvas context unavailable'));
+      }
+    };
+    img.onerror = () => reject(new Error('Failed to load base64 image'));
+    (img as any).crossOrigin = 'anonymous';
+    img.src = base64;
+  });
 }

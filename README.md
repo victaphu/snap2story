@@ -47,10 +47,28 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Story Templates from Supabase
 
-Preview generation attempts to load story templates from Supabase first (table `story_templates` and RPC `get_story_pages_for_age`), falling back to local templates if unavailable. Ensure these env vars are set in `.env.local`:
+Preview generation loads story templates from Supabase first (table `story_templates` and RPC `get_story_pages_full_for_age`), falling back to local templates if unavailable. Templates support variants and tagging via these columns:
+
+- `series_key`: groups variants of the same story concept
+- `page_count`: number of pages for the variant (e.g., 10/20/30)
+- `tags`: text[] for filtering in the UI (e.g., ['dreams','bedtime'])
+
+Ensure these env vars are set in `.env.local`:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-The route `POST /api/generate-preview` maps theme slugs to DB `story_id`s (e.g., `adventure` → `adventure_flexible_multiage`) and selects age-appropriate page text via the RPC.
+The route `POST /api/generate-preview` maps the chosen theme/series to a concrete template and, when a length is selected, picks the sibling variant matching `page_count`. It selects age‑appropriate text via the `get_story_pages_full_for_age` RPC.
+
+## Image Edit Endpoints
+
+- `POST /api/image/stylize-openai`: Uses OpenAI `gpt-image-1` to edit an input image. Accepts `{ imageBase64, scene?, styleNotes?, keepLikeness?, maskBase64?, size?, bookId? }` and returns `{ image, promptUsed }`.
+- `POST /api/image/qwen3imageedit`: Uses DashScope `qwen-image-edit`. Accepts `{ imageBase64, imageBase64_2?, scene?, styleNotes?, keepLikeness?, bookId? }`. Requires `QWEN_3_IMAGE_EDIT_KEY` in env. Returns `{ image, promptUsed }`.
+
+## Image Provider Toggle
+
+- `IMAGE_EDIT_PROVIDER`: Selects which provider the app uses for cover generation in `POST /api/generate-preview`.
+  - Values: `qwen` (default) or `openai`.
+  - When `qwen`, the route calls the internal `POST /api/image/qwen3imageedit`.
+  - When `openai`, the route uses OpenAI `gpt-image-1` directly.

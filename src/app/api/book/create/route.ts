@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, theme, age_group, length, mode } = body || {};
+    const { title, theme, age_group, length, mode, placeholders } = body || {};
     if (!theme || !age_group || !length) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
@@ -51,6 +51,14 @@ export async function POST(req: NextRequest) {
       prompt: { theme },
     }));
     await supabaseAdmin.from('book_pages').insert(pages);
+
+    // Save placeholder overrides if provided
+    if (placeholders && typeof placeholders === 'object') {
+      const kv = Object.entries(placeholders as Record<string, string>).map(([key, value]) => ({ book_id: book.id, key, value }));
+      if (kv.length) {
+        await supabaseAdmin.from('book_placeholder_values').upsert(kv, { onConflict: 'book_id,key' });
+      }
+    }
 
     return NextResponse.json({ success: true, bookId: book.id });
   } catch (e) {

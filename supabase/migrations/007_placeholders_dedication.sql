@@ -1,0 +1,2 @@
+-- Deprecated: Dedication placeholder handled by UI + /api/generate-dedication.
+-- No-op migration maintained to preserve sequence alignment.

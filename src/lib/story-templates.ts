@@ -339,7 +339,26 @@ export const STORY_TEMPLATES: StoryTemplate[] = [
 ];
 
 export function getStoryTemplate(themeId: string): StoryTemplate | null {
-  return STORY_TEMPLATES.find(template => template.id === themeId) || null;
+  // 1) Exact id match
+  const exact = STORY_TEMPLATES.find(t => t.id === themeId);
+  if (exact) return exact;
+  // 2) Fuzzy match by theme name
+  const fuzzy = STORY_TEMPLATES.find(t => t.theme.toLowerCase().includes((themeId || '').toLowerCase()));
+  if (fuzzy) return fuzzy;
+  // 3) Fallback: build a minimal template so preview can proceed
+  const SLUG_TO_NAME: Record<string, string> = {
+    adventure: 'Adventure & Exploration',
+    friendship: 'Friendship & Kindness',
+    family: 'Family & Home Life',
+    dreams: 'Dreams & Imagination',
+  };
+  const name = SLUG_TO_NAME[themeId] || themeId;
+  return {
+    id: themeId,
+    theme: name,
+    title: "{heroName}'s Adventure",
+    pages: [],
+  };
 }
 
 export function generateBookTitle(themeId: string, heroName: string): string {

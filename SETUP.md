@@ -68,7 +68,7 @@ The application is designed to work even without complete environment setup:
 
 - **Authentication**: Sign in/up requires Clerk configuration
 - **Database Operations**: Story creation/management requires Supabase
-- **AI Generation**: Story creation requires OpenAI API key
+- **AI Generation**: Image editing requires Qwen API key (DashScope) or OpenAI API key
 - **Payments**: Purchase flow requires Stripe configuration
 
 ## Testing

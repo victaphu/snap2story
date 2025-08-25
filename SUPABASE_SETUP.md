@@ -32,15 +32,7 @@ Once your project is ready:
 
 ### 3. Run Database Migrations
 
-In your Supabase dashboard:
-
-1. Go to SQL Editor
-2. Click "New query"
-3. Copy and paste the contents of `supabase/migrations/001_initial_schema.sql`
-4. Click "Run" to execute the migration
-5. Repeat for `002_rls_policies.sql` and `003_functions.sql`
-
-Alternatively, if you have the Supabase CLI installed:
+Recommended (Supabase CLI):
 
 ```bash
 # Install Supabase CLI (if not already installed)
@@ -48,12 +40,14 @@ npm install -g supabase
 
 # Initialize Supabase in your project
 supabase init
-
 # Link to your remote project
 supabase link --project-ref YOUR_PROJECT_REF
 
-# Push the migrations
+# Push the migrations in this repo
 supabase db push
+
+Manual (SQL editor):
+- Run the SQL files in `supabase/migrations` in numeric/chronological order.
 ```
 
 ### 4. Set Up Authentication Integration
@@ -63,14 +57,11 @@ supabase db push
 3. Enable "Use custom SMTP server" if you want custom email templates
 4. Configure OAuth providers if needed (Google, GitHub, etc.)
 
-### 5. Configure Storage (Optional)
+### 5. Configure Storage
 
-If you plan to store images in Supabase Storage:
-
-1. Go to Storage in your Supabase dashboard
-2. Create a new bucket called "story-images"
-3. Set the bucket to public if you want direct URL access
-4. Configure upload policies as needed
+This project uses two buckets created by migrations:
+- `pages` (public): generated page images
+- `exports` (private): exported PDFs
 
 ### 6. Set Up Row Level Security
 
@@ -104,19 +95,20 @@ async function testConnection() {
 testConnection();
 ```
 
-## Database Schema Overview
+## Database Schema Overview (Current)
 
 ### Core Tables
 
-- **users**: User profiles linked to Clerk authentication
-- **stories**: AI-generated stories with payment tracking
-- **story_pages**: Individual pages of AI-generated stories
-- **custom_stories**: User-created stories
-- **custom_pages**: Pages of custom stories
-- **orders**: Physical book orders
-- **story_samples**: Preview samples (expire after 24 hours)
-- **user_preferences**: User settings and preferences
-- **analytics_events**: Event tracking for analytics
+- **story_templates**: Template JSON per variant. Columns include `series_key`, `page_count`, `tags`.
+- **profiles**: User profiles linked to Clerk (`clerk_id`).
+- **books**: A user’s book (theme, age_group, length, status).
+- **book_pages**: Per-book pages (text JSON, `image_url`, `prompt` JSON).
+- **book_placeholder_values**: Per-book user overrides for placeholders.
+- **orders**: (Optional) If you plan to do payments/fulfillment, use the newer `orders` table from 004_brief_schema.sql.
+
+### RPC / Functions
+
+- `get_story_pages_full_for_age(story_id, age)`: Projects age-appropriate text from `story_templates.data` while keeping page config.
 
 ### Key Features
 

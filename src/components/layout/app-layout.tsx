@@ -24,6 +24,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   // Show FAB on home and library pages
   const showFAB = pathname === '/' || pathname?.startsWith('/library');
+  // Allow wider content area on preview pages to make the book easier to read
+  const isWidePreview = pathname?.startsWith('/create/preview') || pathname?.startsWith('/create/custom/preview');
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,7 +44,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         "desktop:ml-64", // Desktop sidebar width
         "pb-20 desktop:pb-0" // Mobile nav height
       )}>
-        <div className="container max-w-6xl mx-auto p-4">
+        <div className={cn(
+          'container mx-auto p-4',
+          isWidePreview ? 'max-w-[95vw]' : 'max-w-6xl'
+        )}>
           {children}
         </div>
       </main>

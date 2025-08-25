@@ -1,0 +1,2 @@
+-- Deprecated: Placeholder seeds removed. Placeholders are inferred from
+-- story_templates JSON at runtime; see /api/templates/placeholders (fallback mode).
