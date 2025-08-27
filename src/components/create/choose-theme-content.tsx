@@ -57,7 +57,7 @@ export function ChooseThemeContent() {
       setIsFetchingThemes(true);
       try {
         // 1) Use local cache first
-        const cached = sessionStorage.getItem('themes_list_cache');
+        const cached = sessionStorage.getItem('themes_list_cache_v2');
         if (cached) {
           const parsed: TemplateItem[] = JSON.parse(cached);
           if (!cancelled && Array.isArray(parsed) && parsed.length) {
@@ -83,7 +83,9 @@ export function ChooseThemeContent() {
             slug,
             title: String(row.title || name),
             description: fallback?.description,
-            series_key: String(row.series_key || row.story_id || ''),
+            // Prefer provided series_key; otherwise, default to slug so
+            // multiple page-count variants collapse into a single theme option.
+            series_key: String(row.series_key || slug || ''),
             page_count: Number(row.page_count || 20),
             tags: Array.isArray(row.tags) ? row.tags : [],
           };
@@ -91,7 +93,7 @@ export function ChooseThemeContent() {
         if (!cancelled && merged.length > 0) {
           setTemplates(merged);
           setLoadedFromDb(true);
-          try { sessionStorage.setItem('themes_list_cache', JSON.stringify(merged)); } catch {}
+          try { sessionStorage.setItem('themes_list_cache_v2', JSON.stringify(merged)); } catch {}
         } else if (!cancelled) {
           const fb = (THEMES as unknown as any[]).map((t) => ({ id: t.slug, story_id: t.slug, name: t.name, slug: t.slug, title: t.name, description: t.description }));
           setTemplates(fb);
@@ -120,7 +122,9 @@ export function ChooseThemeContent() {
     const tagSet = new Set<string>();
     for (const t of templates) {
       if (Array.isArray(t.tags)) t.tags.forEach((tg) => tg && tagSet.add(tg));
-      const key = t.series_key || t.story_id;
+      // Group by series_key when available; otherwise by slug to collapse
+      // multiple variants (10/20/30 pages) into a single theme tile.
+      const key = t.series_key || t.slug || t.story_id;
       if (!map.has(key)) {
         map.set(key, {
           series_key: key,
@@ -165,7 +169,9 @@ export function ChooseThemeContent() {
         const params = new URLSearchParams({
           mode: 'ai-assisted',
           theme: themeSlug,
-          heroName: 'Bobby'
+          heroName: 'Bobby',
+          // Auto-select 10 pages by default after theme selection
+          length: '10',
         });
         if (storyId) {
           params.set('storyId', storyId);
@@ -180,14 +186,14 @@ export function ChooseThemeContent() {
           sessionStorage.setItem('story_sample', JSON.stringify(sampleData));
         }
         
-        // Go to payment page for AI-assisted with theme selected
-        router.push(`/create/payment?sampleId=${sampleId}&mode=${mode}&theme=${themeSlug}`);
+        // Go to payment page for AI-assisted with theme selected, default length=10
+        router.push(`/create/payment?sampleId=${sampleId}&mode=${mode}&theme=${themeSlug}&length=10`);
       } else if (themeSlug === 'custom') {
         // For custom theme, redirect to custom editor
         router.push('/create/custom');
       } else {
-        // For legacy workflow, go to describe page with theme
-        router.push(`/create/describe?theme=${themeSlug}`);
+        // For legacy workflow, go to describe page with theme and default length=10
+        router.push(`/create/describe?theme=${themeSlug}&length=10`);
       }
     } catch (error) {
       toast.error('Something went wrong. Please try again.');
@@ -206,7 +212,9 @@ export function ChooseThemeContent() {
     
     // Find the selected series group to get a default story ID
     const seriesGroup = groups.find(g => g.series_key === selectedSeries.series_key);
-    const defaultStoryId = seriesGroup?.variants?.[0]?.story_id; // Use first variant as default
+    // Prefer 10-page variant when available; otherwise smallest page count
+    const defaultVariant = seriesGroup?.variants?.find(v => v.page_count === 10) || seriesGroup?.variants?.[0];
+    const defaultStoryId = defaultVariant?.story_id;
     
     await proceedWithTheme(selectedSeries.slug, defaultStoryId);
   };

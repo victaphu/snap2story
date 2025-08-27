@@ -1,0 +1,64 @@
+services:
+  # Web Service (API + WebSocket server)
+  - type: web
+    name: snap2story-backend-api
+    runtime: node
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: snap2story-redis
+          property: connectionString
+      - key: CORS_ORIGINS
+        value: https://your-frontend-domain.com,http://localhost:3000
+      - key: WS_PING_TIMEOUT
+        value: "60000"
+      - key: WS_PING_INTERVAL
+        value: "25000"
+      - fromGroup: snap2story-secrets
+
+  # Background Worker Service
+  - type: worker
+    name: snap2story-image-worker
+    runtime: node
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm run worker
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WORKER_CONCURRENCY
+        value: "2"
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: snap2story-redis
+          property: connectionString
+      - fromGroup: snap2story-secrets
+
+  # Redis Service
+  - type: redis
+    name: snap2story-redis
+    region: oregon
+    plan: starter
+    maxmemoryPolicy: allkeys-lru
+
+# Environment variable group for secrets
+envVarGroups:
+  - name: snap2story-secrets
+    envVars:
+      - key: OPENAI_API_KEY
+        value: your_openai_api_key_here
+      - key: QWEN_3_IMAGE_EDIT_KEY
+        value: your_qwen_api_key_here

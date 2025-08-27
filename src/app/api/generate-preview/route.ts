@@ -9,6 +9,9 @@ import { addTextOverlay } from '@/lib/text-overlay';
 
 export const runtime = 'nodejs';
 
+// Use queue system for longer-running requests
+const useQueue = process.env.USE_QUEUE_SYSTEM === 'true';
+
 // ---------- Utilities ----------
 type NonEmpty<T extends string> = T & { __brand: 'nonempty' };
 const ne = (s?: string | null): NonEmpty<string> | null => {
@@ -82,13 +85,13 @@ function buildPrompt(opts: {
 
   // Core image generation instructions
   const basePrompt = [
+    artStyleClause, // Put illustration style first
     `Create a full-bleed title page with no borders or frames.`,
     `Character: ${hero} matching the appearance from the uploaded photo. Convert the hero into their animated cartoon form matching the image style and scene, make. the character a hero and pose them in appropriate pose for image`,
     `Add a friendly companion if no other people are in the original photo.`,
     `Scene: ${scene}`,
     `Style: Child-friendly, warm, heartwarming with natural proportions.`,
-    artStyleClause,
-  ];
+  ].filter(Boolean);
 
   // Add title if requested
   if (opts.includeTitle && title) {
@@ -111,6 +114,29 @@ function buildPrompt(opts: {
 // ---------- Route ----------
 export async function POST(request: NextRequest) {
   try {
+    // If queue system is enabled, delegate to backend service
+    if (useQueue) {
+      const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+      const payload = await request.json();
+
+      const response = await fetch(`${backendUrl}/api/jobs/generate-image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Backend service unavailable' }));
+        return NextResponse.json({ 
+          error: 'Queue service error', 
+          details: error.error || `HTTP ${response.status}` 
+        }, { status: 502 });
+      }
+
+      return NextResponse.json(await response.json());
+    }
     const payload = await request.json();
 
     const {

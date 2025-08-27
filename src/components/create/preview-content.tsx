@@ -84,7 +84,8 @@ export function PreviewContent() {
   const [sequenceLen, setSequenceLen] = useState(0);
   const [currentPageTitle, setCurrentPageTitle] = useState<string>('');
   // Selection controls moved before any conditional returns to preserve hook order
-  const [selectedLength, setSelectedLength] = useState<number>(Number(searchParams.get('length') || 20));
+  // Default to 10 pages when length is not provided
+  const [selectedLength, setSelectedLength] = useState<number>(Number(searchParams.get('length') || 10));
   const [selectedAge, setSelectedAge] = useState<string>(searchParams.get('age') || '5-6');
   const priceLabel = useMemo(() => {
     if (selectedLength === 10) return 'Free sample';
@@ -340,9 +341,14 @@ export function PreviewContent() {
   useEffect(() => {
     // Build preview data from URL + session storage
     const heroName = searchParams.get('heroName');
-    const themeId = searchParams.get('themeId');
-    const title = searchParams.get('title');
-    if (heroName && themeId && title) {
+    const themeParam = searchParams.get('theme');
+    const storyIdParam = searchParams.get('storyId');
+    
+    // For backward compatibility, also check for themeId and title
+    const themeId = searchParams.get('themeId') || storyIdParam || themeParam;
+    const title = searchParams.get('title') || `${heroName}'s ${themeParam || 'Adventure'} Story`;
+    
+    if (heroName) {
       let coverImage = '';
       let originalImage = '';
       let storyImagesLocal: string[] = [];
@@ -355,21 +361,29 @@ export function PreviewContent() {
           if (Array.isArray(pi.storyImages)) storyImagesLocal = pi.storyImages.map((s: any) => String(s || ''));
         }
       } catch {}
+      
+      // Only redirect if we don't have the essential data
+      if (!coverImage && !originalImage) {
+        toast.error('Preview images missing - redirecting to create page');
+        router.push('/create');
+        return;
+      }
+      
       setPreviewData({
         id: `preview-${Date.now()}`,
         title,
-        themeId,
+        themeId: themeId || 'adventure',
         coverImage,
         originalImage,
-        storyTemplate: { id: themeId, theme: theme || 'Adventure', title, pages: [] },
+        storyTemplate: { id: themeId || 'adventure', theme: themeParam || 'Adventure', title, pages: [] },
         pages: [{ id: 'title-page', type: 'title', title, text: `A magical story featuring ${heroName}!`, imageUrl: '' }],
         heroName,
-        theme: theme || 'Adventure',
+        theme: themeParam || 'Adventure',
         createdAt: new Date().toISOString(),
         storyImages: storyImagesLocal,
       } as any);
     } else {
-      toast.error('Preview data missing - redirecting to create page');
+      toast.error('Hero name missing - redirecting to create page');
       router.push('/create');
     }
     setIsLoading(false);

@@ -147,6 +147,11 @@ export function compressBase64Image(
  * Get the size of a base64 string in bytes and MB
  */
 export function getBase64Size(base64: string): { bytes: number; mb: number } {
+  // Handle undefined/null input
+  if (!base64) {
+    return { bytes: 0, mb: 0 };
+  }
+  
   // Remove data URL prefix if present
   const base64Data = base64.split(',')[1] || base64;
   

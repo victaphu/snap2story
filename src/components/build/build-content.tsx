@@ -9,8 +9,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ProgressSteps } from '@/components/create/progress-steps';
-import { supabase } from '@/lib/services/supabase-client';
+// Note: avoid direct Supabase reads here; use server API endpoints
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useImageGeneration } from '@/lib/hooks/useImageGeneration';
+import { toast } from 'sonner';
 import { composeDedicationImage } from '@/lib/dedication';
+import { composeLastOverlayImage } from '@/lib/compose-last-overlay';
+import { STYLE_MAP, FULL_BLEED_TEXT } from '@/lib/constants';
+// import { buildGenerationPlan } from '@/lib/plan/buildPlan';
 
 type DbPage = { pageNumber: number; text: string; imageDescription: string; isTitle?: boolean; isDedication?: boolean; raw?: any };
 
@@ -25,6 +31,10 @@ type GenItem = {
   storyText?: string;
   pageType?: 'blank' | 'text-only' | 'static' | 'generated';
   staticImagePath?: string;
+  progress?: number;
+  message?: string;
+  errorMessage?: string;
+  kind?: 'cover' | 'interior' | 'dedication';
 };
 
 export function BuildContent() {
@@ -42,14 +52,152 @@ export function BuildContent() {
   const [items, setItems] = useState<GenItem[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [autoRun, setAutoRun] = useState(true);
-  const [dedication, setDedication] = useState('A special book made with love.');
   const [viewerOpen, setViewerOpen] = useState(false);
   const [printing, setPrinting] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [placeholderValues, setPlaceholderValues] = useState<Record<string, string>>({});
   const [regenTotal, setRegenTotal] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [etaMs, setEtaMs] = useState<number>(0);
   const [existingCover, setExistingCover] = useState<string>('');
+  const [selectedStory, setSelectedStory] = useState<{
+    storyId: string;
+    seriesKey?: string | null;
+    title?: string;
+    theme?: string;
+    pageCount?: number;
+    age?: string | number;
+    pages?: any[];
+  } | null>(null);
+  const [currentGeneratingIndex, setCurrentGeneratingIndex] = useState<number | null>(null);
+  // Track by stable key to survive plan rebuilds
+  const currentGeneratingKeyRef = useRef<string | null>(null);
+  const itemsRef = useRef<GenItem[]>([]);
+  useEffect(() => { itemsRef.current = items; }, [items]);
+  const hasReconnectedRef = useRef(false);
+  const [dedication, setDedication] = useState('A special book made with love.');
+
+  // Initialize image generation hook
+  const { generateImage, currentJob, isGenerating } = useImageGeneration({
+    useWebSocket: true,
+    onProgress: (progress) => {
+      let idx = currentGeneratingIndex;
+      if (idx === null && currentGeneratingKeyRef.current) {
+        idx = itemsRef.current.findIndex(it => it.key === currentGeneratingKeyRef.current);
+      }
+      if (idx !== null && idx >= 0) {
+        updateItem(idx, {
+          status: 'generating',
+          progress: progress.progress,
+          message: progress.message,
+        });
+      }
+    },
+    onCompleted: (result) => {
+      let idx = currentGeneratingIndex;
+      if (idx === null && currentGeneratingKeyRef.current) {
+        idx = itemsRef.current.findIndex(it => it.key === currentGeneratingKeyRef.current);
+      }
+      if (idx !== null && idx >= 0 && result.imageUrl) {
+        updateItem(idx, {
+          status: 'done',
+          image: result.imageUrl,
+          progress: 100,
+        });
+        setCurrentIdx(idx);
+      }
+      setCurrentGeneratingIndex(null);
+      currentGeneratingKeyRef.current = null;
+      // Clear the persisted markers when job completes
+      sessionStorage.removeItem('build_generating_index');
+      sessionStorage.removeItem('build_generating_key');
+    },
+    onFailed: (error) => {
+      let idx = currentGeneratingIndex;
+      if (idx === null && currentGeneratingKeyRef.current) {
+        idx = itemsRef.current.findIndex(it => it.key === currentGeneratingKeyRef.current);
+      }
+      if (idx !== null && idx >= 0) {
+        updateItem(idx, {
+          status: 'error',
+          errorMessage: error.error,
+        });
+      }
+      setCurrentGeneratingIndex(null);
+      currentGeneratingKeyRef.current = null;
+      // Clear the persisted markers when job fails
+      sessionStorage.removeItem('build_generating_index');
+      sessionStorage.removeItem('build_generating_key');
+    }
+  });
+
+  // Persist current generating index when it changes
+  useEffect(() => {
+    if (currentGeneratingIndex !== null) {
+      sessionStorage.setItem('build_generating_index', String(currentGeneratingIndex));
+    }
+  }, [currentGeneratingIndex]);
+  // Persist generating key
+  useEffect(() => {
+    if (currentGeneratingKeyRef.current) {
+      sessionStorage.setItem('build_generating_key', currentGeneratingKeyRef.current);
+    }
+  }, [currentGeneratingKeyRef.current]);
+
+  // Check for active jobs on mount and restore progress state
+  useEffect(() => {
+    // Only run once per job when reconnected
+    if (currentJob && isGenerating && !hasReconnectedRef.current) {
+      hasReconnectedRef.current = true;
+      console.log('🔄 Build screen: Reconnected to active job', currentJob);
+      
+      // First try to restore the previously generating index
+      let generatingIndex = -1;
+      const savedKey = sessionStorage.getItem('build_generating_key');
+      let savedIndex = sessionStorage.getItem('build_generating_index');
+      
+      if (savedKey) {
+        const idx = items.findIndex(it => it.key === savedKey);
+        if (idx >= 0) {
+          generatingIndex = idx;
+          currentGeneratingKeyRef.current = savedKey;
+          console.log('📍 Restored generating key from session:', savedKey, '-> index', generatingIndex);
+        }
+      }
+      if (generatingIndex === -1 && savedIndex !== null) {
+        const idx = parseInt(savedIndex, 10);
+        if (!isNaN(idx) && idx >= 0 && idx < items.length && items[idx]?.pageType === 'generated') {
+          generatingIndex = idx;
+          console.log('📍 Restored generating index from session:', generatingIndex);
+        }
+      }
+      
+      // If no saved index or invalid, find the first item that's generating or pending
+      if (generatingIndex === -1) {
+        generatingIndex = items.findIndex(item => 
+          item.status === 'generating' || 
+          (item.status === 'pending' && item.pageType === 'generated')
+        );
+      }
+      
+      // If still nothing found, assume regenerating from start
+      if (generatingIndex === -1 && items.length > 0) {
+        generatingIndex = items.findIndex(item => item.pageType === 'generated');
+        console.log('🔄 No pending items found, starting from first generated item:', generatingIndex);
+      }
+      
+      if (generatingIndex !== -1) {
+        setCurrentGeneratingIndex(generatingIndex);
+        currentGeneratingKeyRef.current = items[generatingIndex]?.key || null;
+        updateItem(generatingIndex, {
+          status: 'generating',
+          progress: currentJob.progress,
+          message: currentJob.message
+        });
+        setCurrentIdx(generatingIndex);
+      }
+    }
+  }, [currentJob?.jobId]); // Only depend on jobId to avoid loops
 
   useEffect(() => {
     // restore hero and original image from session
@@ -66,11 +214,38 @@ export function BuildContent() {
         if (pi.originalImage) setOriginalImage(String(pi.originalImage));
         if (pi.coverImage) setExistingCover(String(pi.coverImage));
       }
+      // Preload selected story (and its pages) if available (from checkout)
+      let sel: any = null;
+      const rawSel = sessionStorage.getItem('selected_story');
+      console.log('selected records is', rawSel);
+      if (rawSel) sel = JSON.parse(rawSel);
+      if (!sel) {
+        const rawTmpl = sessionStorage.getItem('selected_story_template');
+        if (rawTmpl) sel = JSON.parse(rawTmpl);
+      }
+      if (sel) {
+        setSelectedStory(sel);
+        if (Array.isArray(sel?.pages) && sel.pages.length > 0) {
+          const rows: DbPage[] = sel.pages
+            .filter((p: any) => Number(p.pageNumber) >= 1)
+            .map((p: any) => ({
+              pageNumber: Number(p.pageNumber),
+              text: String(p.text || ''),
+              imageDescription: String(p.imageDescription || ''),
+              isTitle: Boolean(p.isTitle || p.pageNumber === 0),
+              isDedication: Boolean(p.isDedication || p.pageNumber === 0.5),
+              raw: p,
+            }));
+          if (rows.length > 0) setDbPages(rows);
+        }
+      }
     } catch {}
   }, []);
 
   const storyId = useMemo(() => {
-    // Prefer the explicit selection saved from ChooseThemeContent
+    // Prefer storyId from selected_story saved at checkout
+    if (selectedStory?.storyId) return String(selectedStory.storyId);
+    // Otherwise fallback to explicit selection saved from theme step
     try {
       const raw = sessionStorage.getItem('selected_story_template');
       if (raw) {
@@ -86,42 +261,13 @@ export function BuildContent() {
       dreams: 'dreams_flexible_multiage',
     };
     return map[themeSlug];
-  }, [themeSlug]);
+  }, [themeSlug, selectedStory?.storyId]);
 
-  useEffect(() => {
-    const run = async () => {
-      if (!storyId) return;
-      const ageNum = parseInt((age.split('-')[0] || '5'), 10);
-      const { data, error } = await supabase.rpc('get_story_pages_full_for_age', { p_story_id: storyId, p_age: ageNum });
-      if (!error && Array.isArray(data)) {
-        const rows = data.map((r: any) => ({
-          pageNumber: Number(r.page_number),
-          text: String(r.text || ''),
-          imageDescription: String(r.image_description || ''),
-          isTitle: Boolean(r.is_title),
-          isDedication: Boolean(r.is_dedication),
-          raw: r.raw,
-        }));
-        setDbPages(rows);
-      }
-    };
-    run();
-  }, [storyId, age]);
+  // Do not load templates from DB here; rely solely on session (set in checkout)
 
-  const styleMap: Record<string, string> = {
-    'watercolor': 'Soft Watercolor Storybook: Create artwork in a hand-painted watercolor style, with soft pastels, gentle gradients, and textured paper effects. Keep the look dreamy, light, and calm, with rounded, friendly character designs and simple, uncluttered backgrounds for a soothing, storybook feel. Ensure consistent character proportions, colors, and details across every image.',
-    'bright-cartoon': 'Bright Cartoon (Bluey-Inspired): Produce artwork in a bright, clean children\'s cartoon style inspired by Bluey, with simple rounded shapes, bold and vibrant colors, minimal shading, and happy, approachable character expressions. Use clean, thick outlines and maintain consistent character sizes, outfits, and colors in every image.',
-    'paper-collage': 'Paper-Cut Collage Style: Create a paper-cut collage art style with layered textures, visible edges, and bright but slightly organic color tones. Each element should look handcrafted from textured paper, with soft shadows adding depth and dimension. Ensure character features and color palettes stay consistent across all pages.',
-    'fairytale': 'Fantasy Fairytale Style: Generate illustrations in a classic fairytale style, with detailed but soft linework, whimsical backgrounds, and a touch of magic in the color palette. Use subtle glowing highlights, soft shading, and ornate but approachable designs to make every page feel like a magical adventure. Keep characters visually consistent across all pages.',
-    'crayon-marker': 'Crayon and Marker Sketch: Create images in a childlike crayon and marker sketch style, with bold, imperfect lines, playful textures, and bright primary colors. The style should feel spontaneous and fun, as if drawn by a creative child, while keeping characters clear and expressive. Ensure characters stay consistent throughout the series.',
-    'anime-chibi': 'Anime Chibi / Ghibli-Inspired: Use rounded, chibi-like proportions with big, expressive eyes, soft palettes, gentle shading, and cozy backgrounds. Keep designs adorable and heartwarming, with consistent character proportions, colors, and simple, readable shapes.',
-    // Legacy compatibility
-    'childrens-cartoon': 'Bright Cartoon (Bluey-Inspired): Produce artwork in a bright, clean children\'s cartoon style inspired by Bluey, with simple rounded shapes, bold and vibrant colors, minimal shading, and happy, approachable character expressions. Use clean, thick outlines and maintain consistent character sizes, outfits, and colors in every image.',
-    'anime': 'Anime Chibi / Ghibli-Inspired: Use rounded, chibi-like proportions with big, expressive eyes, soft palettes, gentle shading, and cozy backgrounds. Keep designs adorable and heartwarming, with consistent character proportions, colors, and simple, readable shapes.',
-    'comic-book': 'Fantasy Fairytale Style: Generate illustrations in a classic fairytale style, with detailed but soft linework, whimsical backgrounds, and a touch of magic in the color palette. Use subtle glowing highlights, soft shading, and ornate but approachable designs to make every page feel like a magical adventure. Keep characters visually consistent across all pages.',
-  };
+  const styleDescription = STYLE_MAP[styleKey] || 'Bright storybook';
 
-  const fullBleed = 'Generate a single full‑bleed, edge‑to‑edge page image (no borders, frames, margins, mockups, UI, or text).';
+  const fullBleed = FULL_BLEED_TEXT;
 
   const applyPH = (text: string) => {
     if (!text) return '';
@@ -139,10 +285,15 @@ export function BuildContent() {
     return applyPH(page.text);
   };
 
-  // Build generation plan once pages are loaded
+  // Build generation plan once pages are loaded (with fallback when DB pages are unavailable)
   useEffect(() => {
-    if (dbPages.length === 0) return;
     const plan: GenItem[] = [];
+
+    console.log(dbPages);
+
+    if (!dbPages || dbPages.length === 0) {
+      return; // don't process until db pages is loaded
+    }
     
     // 1. Cover — reuse previously generated image; do not regenerate
     plan.push({
@@ -166,57 +317,105 @@ export function BuildContent() {
       pageType: 'blank',
     });
     
-    // 3. Dedication (AI via special call)
+    // 3. Dedication (AI via backend generation)
     plan.push({ 
       key: 'dedication', 
       label: 'Dedication Page (Page 3)', 
-      prompt: '(dedication)', 
+      prompt: [
+        fullBleed,
+        'Create a warm, inviting background perfect for a dedication page.',
+        'Use soft, gentle colors and subtle patterns or textures.',
+        'The design should be calming and not too busy, suitable for overlaying text.',
+        'Include elements like soft clouds, gentle gradients, or subtle nature motifs.',
+        `Art style: ${styleDescription}.`,
+        'Generate only the background illustration without any text.',
+      ].join(' '),
       status: 'pending', 
       canEdit: true, 
       regenCount: 0,
       pageType: 'generated',
+      kind: 'dedication',
     });
     
-    // 4. Interior pages: alternating text and images
-    const content = dbPages.filter(p => !p.isTitle && !p.isDedication && p.pageNumber >= 1);
-    let pageNum = 4;
+    // 4. Interior pages: alternating text-only and text+image pages
+    const genCount = Math.max(0, Number(length || 0));
+    console.log('🎨 Generation Plan Debug:', {
+      requestedLength: length,
+      genCount,
+      dbPagesTotal: dbPages.length,
+      dbPagesContent: dbPages.filter(p => !p.isTitle && !p.isDedication && p.pageNumber >= 1).length,
+      dbPages,
+    });
     
-    for (let i = 0; i < content.length; i++) {
-      // Text-only page (left side) - use age-appropriate text
-      const storyTxt = getAgeAppropriateText(content[i]);
-      plan.push({
-        key: `text-${i+1}`,
-        label: `Page ${pageNum} - Story Text`,
+    let content = dbPages.filter(p => !p.isTitle && !p.isDedication && p.pageNumber >= 1);
+    
+    if (content.length === 0) {
+      console.error('No story content pages found for the selected series/page count.');
+      const errorPlan: GenItem[] = [{
+        key: 'error',
+        label: 'No story content found for this selection',
         prompt: '',
-        status: 'done',
+        status: 'error',
         canEdit: false,
-        pageType: 'text-only',
-        storyText: storyTxt,
-      });
-      pageNum++;
-      
-      i = i + 1;
-      // Image page (right side)
-      const desc = applyPH(content[i].imageDescription || 'An interior scene consistent with the story');
-      const storyTextForImage = getAgeAppropriateText(content[i]); // Get text from the current page
-      plan.push({
-        key: `p-${i+1}`,
-        label: `Page ${pageNum} - Story Image`,
-        prompt: [
-          fullBleed,
-          `Feature ${applyPH(`{heroName}`) || 'the hero'}; keep likeness from the uploaded photo.`,
-          'Vary pose, action, and camera angle; convey motion (running, reaching, turning, jumping, etc.).',
-          'If no other people are present in the original image, add a friendly companion character that complements the story. This friend should: match the same art style and character design consistency as the main hero, have age-appropriate proportions similar to the hero, use harmonious colors that fit the overall palette, display a warm and welcoming expression, be positioned naturally in the scene (not crowding the hero), and maintain the same level of detail and rendering quality as the main character.',
-          `Scene: ${desc}`,
-          `Art style: ${styleMap[styleKey] || 'Bright storybook'}.`,
-          'Generate only the illustration without any text or text overlays.',
-        ].join(' '),
-        status: 'pending',
-        canEdit: true,
         regenCount: 0,
-        storyText: storyTextForImage,
-        pageType: 'generated',
-      });
+        pageType: 'static',
+        errorMessage: 'No story content available. Try a different page count or series.'
+      }];
+      setItems(errorPlan);
+      return;
+    }
+    
+    console.log('✅ Using DB content pages:', content.length, 'will cycle through for', genCount, 'pages');
+    console.log('📖 Content preview:', content.slice(0, 3).map(c => ({ page: c.pageNumber, text: c.text.substring(0, 100) })));
+    
+    let pageNum = 4;
+    let storyIndex = 0;
+    
+    // Generate interior pages with alternating pattern
+    for (let i = 0; i < genCount; i++) {
+      const isTextOnly = (i % 2 === 0); // Even indices (0, 2, 4...) are text-only pages
+      
+      if (isTextOnly) {
+        // Text-only page
+        const src = content[storyIndex % content.length]; // Use storyIndex and wrap around
+        const storyText = getAgeAppropriateText(src);
+        plan.push({
+          key: `p-${i + 1}`,
+          label: `Page ${pageNum} - Story Text`,
+          prompt: '',
+          status: 'done', // No generation needed for text-only pages
+          canEdit: false,
+          regenCount: 0,
+          storyText: storyText,
+          pageType: 'text-only',
+        });
+        storyIndex++; // Move to next story content
+      } else {
+        // Text + Image page
+        const src = content[storyIndex % content.length]; // Use storyIndex and wrap around
+        const desc = applyPH(src.imageDescription || 'An interior scene consistent with the story');
+        const storyTextForImage = getAgeAppropriateText(src);
+        plan.push({
+          key: `p-${i + 1}`,
+          label: `Page ${pageNum} - Story Image`,
+          prompt: [
+            `Art style: ${styleDescription}.`,
+            fullBleed,
+            `Feature ${applyPH(`{heroName}`) || 'the hero'}; keep likeness from the uploaded photo.`,
+            'Vary pose, action, and camera angle; convey motion (running, reaching, turning, jumping, etc.).',
+            'If no other people are present in the original image, add a friendly companion character that complements the story. This friend should: match the same art style and character design consistency as the main hero, have age-appropriate proportions similar to the hero, use harmonious colors that fit the overall palette, display a warm and welcoming expression, be positioned naturally in the scene (not crowding the hero), and maintain the same level of detail and rendering quality as the main character.',
+            `Scene: ${desc}`,
+            'Generate only the illustration without any text or text overlays.',
+          ].join(' '),
+          status: 'pending',
+          canEdit: true,
+          regenCount: 0,
+          storyText: storyTextForImage,
+          pageType: 'generated',
+          kind: 'interior',
+        });
+        storyIndex++; // Move to next story content
+      }
       pageNum++;
     }
     
@@ -255,9 +454,25 @@ export function BuildContent() {
       staticImagePath: '/page-last-003.png',
       image: '/page-last-003.png',
     });
-    console.log('plan loaded', plan, content);
+    console.log('📋 Final Generation Plan:', {
+      totalPages: plan.length,
+      requestedLength: genCount,
+      frontMatterPages: 3, // cover, blank, dedication
+      interiorPages: genCount,
+      backMatterPages: 3, // last 3 static pages
+      expectedTotal: 3 + genCount + 3,
+      actualTotal: plan.length,
+      pagesBreakdown: plan.map(p => ({ key: p.key, label: p.label, pageType: p.pageType }))
+    });
     setItems(plan);
     setCurrentIdx(0);
+    // Restore custom last-page overlay if present
+    try {
+      const composed = sessionStorage.getItem('last_page_composed');
+      if (composed) {
+        setItems((prev) => prev.map((it) => it.key === 'last-1' ? { ...it, image: composed } : it));
+      }
+    } catch {}
   }, [dbPages, heroName, length, styleKey, themeSlug, existingCover]);
 
   // Progressive generator
@@ -272,23 +487,15 @@ export function BuildContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items, autoRun]);
 
-  // Track start time when first item begins, update ETA every second
+  // ETA: each page ~1.2 minutes; recompute on completion
   useEffect(() => {
     const generatedItems = items.filter(it => it.pageType === 'generated');
-    const anyGen = generatedItems.some((it) => it.status === 'generating');
     const doneCount = generatedItems.filter((it) => it.status === 'done').length;
-    const total = generatedItems.length || 1;
-    if ((anyGen || doneCount > 0) && !startedAt) setStartedAt(Date.now());
-    if (doneCount >= total) { setEtaMs(0); return; }
-    const handle = setInterval(() => {
-      const now = Date.now();
-      const elapsed = startedAt ? now - startedAt : 0;
-      const avgPer = doneCount > 0 ? elapsed / doneCount : 78_000; // ~1.3 min default until first completes
-      const remaining = Math.max(0, total - doneCount);
-      setEtaMs(Math.ceil(avgPer * remaining));
-    }, 1000);
-    return () => clearInterval(handle);
-  }, [items, startedAt]);
+    const total = generatedItems.length || 0;
+    const remaining = Math.max(0, total - doneCount);
+    const perPageMs = 72_000; // 1.2 minutes per page
+    setEtaMs(remaining * perPageMs);
+  }, [items]);
 
   const updateItem = (i: number, patch: Partial<GenItem>) => {
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
@@ -304,33 +511,51 @@ export function BuildContent() {
 
   const generateAt = async (i: number) => {
     const it = items[i];
-    if (!it || it.status === 'generating') return;
-    // Dedication via preview endpoint (special branch)
+    if (!it || it.status === 'generating' || isGenerating) return;
+    
+    // Dedication uses local generation (special case)
     if (it.key === 'dedication') {
       const isRegen = it.status !== 'pending';
-      if (isRegen && !canRegenerate(i)) { alert('Regeneration limits reached (max 2 per page, total 10).'); return; }
+      if (isRegen && !canRegenerate(i)) { 
+        alert('Regeneration limits reached (max 2 per page, total 10).'); 
+        return; 
+      }
       updateItem(i, { status: 'generating' });
+      setCurrentGeneratingIndex(i);
+      currentGeneratingKeyRef.current = it.key;
+      try { sessionStorage.setItem('build_generating_key', it.key); } catch {}
+      
       try {
         const img = await composeDedicationImage(applyPH(dedication));
         updateItem(i, { status: 'done', image: img, regenCount: (it.regenCount || 0) + (isRegen ? 1 : 0) });
         if (isRegen) setRegenTotal((t) => t + 1);
         setCurrentIdx(i);
+        setCurrentGeneratingIndex(null);
       } catch (e) {
         updateItem(i, { status: 'error' });
+        setCurrentGeneratingIndex(null);
       }
       return;
     }
+    
     if (it.key === 'cover' || it.canEdit === false) {
       return; // never regenerate cover
     }
-    // Others via preview endpoint (ensures consistent pipeline)
+    
+    // Others via queue system
     if (!originalImage) { alert('Missing uploaded photo for likeness.'); return; }
-    // Determine if this call is a regeneration
+    
     const isRegen = it.status !== 'pending';
     if (isRegen && !canRegenerate(i)) { alert('Regeneration limits reached (max 2 per page, total 10).'); return; }
-    updateItem(i, { status: 'generating' });
+    
+    // Set current generating index for progress tracking
+    setCurrentGeneratingIndex(i);
+    currentGeneratingKeyRef.current = it.key;
+    try { sessionStorage.setItem('build_generating_key', it.key); } catch {}
+    updateItem(i, { status: 'generating', progress: 0, message: 'Queueing job...' });
+    
     try {
-      const body: any = {
+      const request = {
         heroName: heroName || 'Hero',
         themeId: themeSlug || undefined,
         storyId,
@@ -338,18 +563,21 @@ export function BuildContent() {
         ageGroup: age,
         length,
         styleKey,
-        kind: it.key === 'cover' ? 'cover' : 'interior',
+        kind: (it.kind || 'interior') as 'cover' | 'interior' | 'dedication',
+        coverPromptOverride: it.key !== 'cover' ? it.prompt : undefined,
+        storyText: it.storyText
       };
-      // Use page-specific scene as override for interior pages
-      if (it.key !== 'cover') body.coverPromptOverride = applyPH(it.prompt);
-      const res = await fetch('/api/generate-preview', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      const data = await res.json();
-      if (!res.ok || !data?.coverImage) throw new Error(data?.error || 'Failed');
-      updateItem(i, { status: 'done', image: String(data.coverImage), regenCount: (it.regenCount || 0) + (isRegen ? 1 : 0) });
-      if (isRegen) setRegenTotal((t) => t + 1);
-      setCurrentIdx(i);
+      
+      await generateImage(request);
+      
+      // Update regeneration count
+      if (isRegen) {
+        updateItem(i, { regenCount: (it.regenCount || 0) + 1 });
+        setRegenTotal((t) => t + 1);
+      }
     } catch (e) {
-      updateItem(i, { status: 'error' });
+      updateItem(i, { status: 'error', errorMessage: e instanceof Error ? e.message : 'Generation failed' });
+      setCurrentGeneratingIndex(null);
     }
   };
 
@@ -367,211 +595,74 @@ export function BuildContent() {
 
   // Export a full-bleed PDF (one page per book page)
   const exportPdf = async () => {
+    setExportingPdf(true);
     try {
-      // Lazy-load pdf-lib from CDN if not present
-      const ensurePdfLib = () => new Promise<any>((resolve, reject) => {
-        if ((window as any).PDFLib) return resolve((window as any).PDFLib);
-        const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
-        s.async = true;
-        s.onload = () => resolve((window as any).PDFLib);
-        s.onerror = () => reject(new Error('Failed to load PDF library'));
-        document.body.appendChild(s);
-      });
-      const PDFLib = await ensurePdfLib();
-      const { PDFDocument, StandardFonts, rgb } = PDFLib;
-      const pdfDoc = await PDFDocument.create();
-      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-      const pageSize = 2048; // square, full-bleed
-
-      const fetchBytes = async (src: string): Promise<Uint8Array> => {
-        if (!src) return new Uint8Array();
-        if (src.startsWith('data:')) {
-          const b64 = src.split(',')[1] || '';
-          const bin = atob(b64);
-          const arr = new Uint8Array(bin.length);
-          for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-          return arr;
-        }
-        
-        // For external URLs (like Qwen CDN), proxy through our server to avoid CORS
-        if (src.startsWith('http')) {
-          try {
-            const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(src)}`;
-            const res = await fetch(proxyUrl);
-            if (!res.ok) throw new Error(`Failed to fetch image: ${res.status}`);
-            const ab = await res.arrayBuffer();
-            return new Uint8Array(ab);
-          } catch (error) {
-            console.warn('Failed to fetch external image, skipping:', src, error);
-            return new Uint8Array();
-          }
-        }
-        
-        // For local URLs
-        try {
-          const res = await fetch(src);
-          const ab = await res.arrayBuffer();
-          return new Uint8Array(ab);
-        } catch (error) {
-          console.warn('Failed to fetch local image, skipping:', src, error);
-          return new Uint8Array();
-        }
-      };
-
-      const drawImageFullBleed = async (src: string, textOverlay?: string) => {
-        const bytes = await fetchBytes(src);
-        if (!bytes.length) { await drawTextPage(textOverlay || ''); return; }
-        let img;
-        try { img = await pdfDoc.embedPng(bytes); } catch { img = await pdfDoc.embedJpg(bytes); }
-        const page = pdfDoc.addPage([pageSize, pageSize]);
-        page.drawImage(img, { x: 0, y: 0, width: pageSize, height: pageSize });
-        
-        if (textOverlay && textOverlay.trim()) {
-          // Children's book text overlay styling (matching text-overlay.ts)
-          const outerPadding = 100; // margin from page edge
-          const innerPadding = 32; // padding inside text box
-          const borderWidth = 8;
-          const cornerRadius = 24; // scaled for PDF
-          const fontSize = 56;
-          const lineHeight = 1.3;
-          
-          const maxTextWidth = pageSize * 0.9 - (outerPadding * 2) - (innerPadding * 2);
-          
-          // Word wrap the text
-          const words = textOverlay.split(/\s+/);
-          const lines: string[] = [];
-          let currentLine = '';
-          
-          for (const word of words) {
-            const testLine = currentLine ? `${currentLine} ${word}` : word;
-            if (font.widthOfTextAtSize(testLine, fontSize) > maxTextWidth && currentLine) {
-              lines.push(currentLine);
-              currentLine = word;
-            } else {
-              currentLine = testLine;
-            }
-          }
-          if (currentLine) lines.push(currentLine);
-          
-          // Calculate text box dimensions
-          const textHeight = lines.length * (fontSize * lineHeight);
-          const boxWidth = pageSize * 0.9 - (outerPadding * 2);
-          const boxHeight = textHeight + (innerPadding * 2);
-          
-          // Position at bottom of page
-          const boxX = (pageSize - boxWidth) / 2;
-          const boxY = outerPadding;
-          
-          // Draw outer border (children's book border color: light gray)
-          page.drawRectangle({
-            x: boxX - borderWidth,
-            y: boxY - borderWidth,
-            width: boxWidth + (borderWidth * 2),
-            height: boxHeight + (borderWidth * 2),
-            color: rgb(0.886, 0.91, 0.941), // #e2e8f0 - border color
-          });
-          
-          // Draw inner background (semi-transparent white)
-          page.drawRectangle({
-            x: boxX,
-            y: boxY,
-            width: boxWidth,
-            height: boxHeight,
-            color: rgb(0.98, 0.98, 0.98), // Very light background for PDF
-          });
-          
-          // Draw text lines (children's book text color)
-          const textStartY = boxY + boxHeight - innerPadding - (fontSize * 0.8);
-          const textCenterX = boxX + boxWidth / 2;
-          
-          let currentY = textStartY;
-          for (const line of lines) {
-            const textWidth = font.widthOfTextAtSize(line, fontSize);
-            const textX = textCenterX - textWidth / 2;
-            page.drawText(line, {
-              x: textX,
-              y: currentY,
-              size: fontSize,
-              font,
-              color: rgb(0.176, 0.216, 0.282), // #2d3748 - children's book text color
-            });
-            currentY -= fontSize * lineHeight;
-          }
-        }
-      };
-
-      const drawTextPage = async (txt: string) => {
-        const page = pdfDoc.addPage([pageSize, pageSize]);
-        const padding = 160;
-        const boxWidth = pageSize - padding * 2;
-        const words = (txt || '').split(/\s+/);
-        const lines: string[] = [];
-        const fontSize = 64;
-        let line = '';
-        for (const w of words) {
-          const test = line ? line + ' ' + w : w;
-          if (font.widthOfTextAtSize(test, fontSize) > boxWidth) { if (line) lines.push(line); line = w; }
-          else line = test;
-        }
-        if (line) lines.push(line);
-        const totalHeight = lines.length * (fontSize * 1.35);
-        let y = (pageSize - totalHeight) / 2 + (lines.length-1)*(fontSize*1.35);
-        for (const ln of lines) {
-          const tw = font.widthOfTextAtSize(ln, fontSize);
-          const x = (pageSize - tw) / 2;
-          page.drawText(ln, { x, y, size: fontSize, font, color: rgb(0.1,0.1,0.12) });
-          y -= fontSize * 1.35;
-        }
-      };
-
-      // Generate PDF pages in exact same order as build page items
-      for (const item of items) {
-        if (item.pageType === 'blank') {
-          await drawTextPage(''); // intentionally blank page
-        } else if (item.pageType === 'text-only') {
-          await drawTextPage(item.storyText || '');
-        } else if (item.pageType === 'generated') {
-          await drawImageFullBleed(item.image || '', item.storyText || '');
-        } else if (item.pageType === 'static') {
-          await drawImageFullBleed(item.staticImagePath || item.image || '');
-        }
-      }
-
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${(items.find(i=>i.key==='cover')?.label || 'book')}.pdf`;
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
+      const { exportBookPdf } = await import('@/lib/pdf/export');
+      await exportBookPdf(items as any);
     } catch (e) {
       console.error('Export PDF failed:', e);
       alert('Failed to export PDF');
+    } finally {
+      setExportingPdf(false);
     }
   };
 
-  // Build book spreads for viewer
+  // Build book spreads for viewer - match PDF layout exactly
   const spreads = useMemo(() => {
     const arr: Array<{ left?: { type: 'blank'|'text'|'image'; text?: string; src?: string }, right?: { type: 'blank'|'text'|'image'; text?: string; src?: string }, singleRight?: boolean }>= [];
-    const cover = existingCover || items.find(i=>i.key==='cover')?.image || '';
-    const dedicationImg = items.find(i=>i.key==='dedication')?.image || '';
-    const contentImgs = items.filter(i=>i.key!=='cover' && i.key!=='dedication');
-    // 1) Cover only (right page only)
-    arr.push({ right: { type: 'image', src: cover }, singleRight: true });
-    // 2) Pages 2-3: left blank, right dedication
-    arr.push({ left: { type: 'blank' }, right: { type: 'image', src: dedicationImg } });
-    // 3) Content spreads: for each generated image, left text (from same item), right image with overlaid text (we overlay in UI)
-    for (const it of contentImgs) {
-      arr.push({ left: { type: 'text', text: it.storyText || '' }, right: { type: 'image', src: it.image || '', text: it.storyText || '' } as any });
+    
+    // 1) Cover only (single right page)
+    const coverItem = items.find(item => item.key === 'cover');
+    if (coverItem?.image) {
+      arr.push({ right: { type: 'image', src: coverItem.image }, singleRight: true });
     }
-    // 4) Last two static pages as a spread
-    arr.push({ left: { type: 'image', src: '/page-last-001.png' }, right: { type: 'image', src: '/page-last-002.png' } });
-    // 5) Final back cover (single right page)
-    arr.push({ right: { type: 'image', src: '/page-last-003.png' }, singleRight: true });
+    
+    // 2) Process remaining items in pairs for side-by-side layout (matching PDF logic)
+    const remainingItems = items.slice(1); // Skip cover
+    const lastThreeItems = remainingItems.slice(-3); // Last 3 static pages
+    const contentItems = remainingItems.slice(0, -3); // Everything except last 3
+    
+    // Process content items in pairs
+    for (let i = 0; i < contentItems.length; i += 2) {
+      const leftItem = contentItems[i];
+      const rightItem = contentItems[i + 1];
+      
+      // Left side
+      let left: { type: 'blank'|'text'|'image'; text?: string; src?: string } | undefined;
+      if (leftItem) {
+        if (leftItem.pageType === 'blank') {
+          left = { type: 'blank' };
+        } else if (leftItem.pageType === 'text-only') {
+          left = { type: 'text', text: leftItem.storyText || '' };
+        } else if (leftItem.image) {
+          left = { type: 'image', src: leftItem.image || leftItem.staticImagePath };
+        }
+      }
+      
+      // Right side
+      let right: { type: 'blank'|'text'|'image'; text?: string; src?: string } | undefined;
+      if (rightItem) {
+        if (rightItem.pageType === 'blank') {
+          right = { type: 'blank' };
+        } else if (rightItem.pageType === 'text-only') {
+          right = { type: 'text', text: rightItem.storyText || '' };
+        } else if (rightItem.image) {
+          right = { type: 'image', src: rightItem.image || rightItem.staticImagePath, text: rightItem.storyText };
+        }
+      }
+      
+      arr.push({ left, right });
+    }
+    
+    // 3) Last 3 pages as individual single pages (matching PDF behavior)
+    for (const item of lastThreeItems) {
+      if (item.pageType === 'static' && item.image) {
+        arr.push({ right: { type: 'image', src: item.image || item.staticImagePath }, singleRight: true });
+      }
+    }
+    
     return arr;
-  }, [items, existingCover]);
+  }, [items]);
 
   const [spreadIdx, setSpreadIdx] = useState(0);
   useEffect(() => { if (viewerOpen) setSpreadIdx(0); }, [viewerOpen]);
@@ -580,21 +671,34 @@ export function BuildContent() {
     return (
       <div className={`relative w-full aspect-square bg-white border rounded overflow-hidden flex items-center justify-center ${side==='left'?'':'order-2'}`}>
         {page?.type === 'blank' && (
-          <div className="w-full h-full bg-white flex items-center justify-center text-neutral-400 italic text-xs">This page intentionally left blank</div>
+          <div className="w-full h-full bg-white flex items-center justify-center text-gray-400 italic text-sm">
+            This page intentionally left blank
+          </div>
         )}
         {page?.type === 'text' && (
-          <div className="p-6 w-full h-full flex items-center justify-center">
-            <div className="text-center whitespace-pre-wrap text-base leading-relaxed text-neutral-800">{page.text || ''}</div>
+          <div className="p-8 w-full h-full flex items-center justify-center">
+            <div className="text-center whitespace-pre-wrap text-2xl leading-relaxed text-gray-800 font-medium max-w-full" style={{ fontFamily: 'Comic Sans MS, cursive, fantasy' }}>
+              {page.text || ''}
+            </div>
           </div>
         )}
         {page?.type === 'image' && (
           <div className="w-full h-full relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={page.src || ''} alt="page" className="w-full h-full object-cover" />
-            {/* If there is text on the right image, overlay near bottom center */}
-            {side==='right' && page.text && (
-              <div className="absolute inset-x-6 bottom-6 bg-white/85 text-neutral-900 rounded px-4 py-2 text-sm text-center shadow-sm whitespace-pre-wrap">
-                {page.text}
+            {/* Children's book style text overlay for right-side images */}
+            {side==='right' && page.text && page.text.trim() && (
+              <div className="absolute inset-x-4 bottom-4">
+                <div className="relative">
+                  {/* Border/shadow effect */}
+                  <div className="absolute inset-0 bg-gray-300 rounded-xl transform translate-x-1 translate-y-1"></div>
+                  {/* Main text box */}
+                  <div className="relative bg-white/95 border-4 border-gray-200 rounded-xl px-4 py-3 shadow-lg">
+                    <div className="text-center text-gray-800 text-sm font-medium leading-relaxed whitespace-pre-wrap" style={{ fontFamily: 'Comic Sans MS, cursive, fantasy' }}>
+                      {page.text}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -647,7 +751,7 @@ export function BuildContent() {
                 </div>
               ) : items[currentIdx]?.pageType === 'text-only' ? (
                 <div className="w-full h-full bg-white p-8 flex items-center justify-center">
-                  <div className="text-center whitespace-pre-wrap text-base leading-relaxed text-neutral-800">
+                  <div className="text-center whitespace-pre-wrap text-2xl leading-relaxed text-gray-800 font-medium" style={{ fontFamily: 'Comic Sans MS, cursive, fantasy' }}>
                     {items[currentIdx]?.storyText || ''}
                   </div>
                 </div>
@@ -655,7 +759,20 @@ export function BuildContent() {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={items[currentIdx].image} alt={items[currentIdx].label} className="w-full h-full object-cover" />
               ) : (
-                <div className="text-muted-foreground text-sm">{items[currentIdx]?.status === 'generating' ? 'Generating…' : 'No image yet'}</div>
+                <div className="text-muted-foreground text-sm">
+                  {items[currentIdx]?.status === 'generating' ? (
+                    <div className="space-y-1">
+                      <div>Generating… {items[currentIdx]?.progress || 0}%</div>
+                      {items[currentIdx]?.message && (
+                        <div className="text-xs">{items[currentIdx]?.message}</div>
+                      )}
+                    </div>
+                  ) : items[currentIdx]?.status === 'error' ? (
+                    <div className="text-red-500">
+                      {items[currentIdx]?.errorMessage || 'Generation failed'}
+                    </div>
+                  ) : 'No image yet'}
+                </div>
               )}
             </div>
           </CardContent>
@@ -686,20 +803,58 @@ export function BuildContent() {
                 </div>
               </div>
             ) : items[currentIdx]?.pageType === 'static' ? (
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">
-                  This is a pre-designed page that will be included in all books.
-                </div>
-                <div className="p-2 border rounded bg-muted text-xs">
-                  Static image: {items[currentIdx]?.staticImagePath}
-                </div>
+              <div className="space-y-3">
+                <div className="text-sm text-muted-foreground">This is a pre-designed page that will be included in all books.</div>
+                <div className="p-2 border rounded bg-muted text-xs">Static image: {items[currentIdx]?.staticImagePath}</div>
+                {items[currentIdx]?.key === 'last-1' && (
+                  <div className="space-y-2">
+                    <Label>Custom dedication image (optional)</Label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        if (!f) return;
+                        const reader = new FileReader();
+                        reader.onload = async () => {
+                          try {
+                            const composed = await composeLastOverlayImage(String(reader.result));
+                            updateItem(currentIdx, { image: composed });
+                            try { 
+                              sessionStorage.setItem('last_page_overlay', String(reader.result));
+                              sessionStorage.setItem('last_page_composed', composed);
+                            } catch {}
+                          } catch (err) {
+                            console.error('Failed composing last page overlay', err);
+                            alert('Failed to compose dedication image');
+                          }
+                        };
+                        reader.readAsDataURL(f);
+                      }}
+                    />
+                    <div className="text-xs text-muted-foreground">We will center your image at 50% height (keeping its aspect ratio) with a 20px white border on the background.</div>
+                  </div>
+                )}
               </div>
             ) : items[currentIdx]?.key === 'dedication' ? (
               <div className="space-y-2">
                 <Label>Dedication message</Label>
-                <Textarea value={dedication} onChange={(e)=> setDedication(e.target.value)} rows={4} />
+                <Textarea 
+                  value={dedication} 
+                  onChange={(e) => setDedication(e.target.value)} 
+                  rows={4} 
+                  placeholder="A special message for your book..."
+                />
                 <div className="flex gap-2">
-                  <Button onClick={()=> generateAt(currentIdx)} disabled={items[currentIdx].status==='generating'}>Generate dedication</Button>
+                  <Button 
+                    onClick={() => generateAt(currentIdx)} 
+                    disabled={items[currentIdx].status === 'generating'}
+                  >
+                    {items[currentIdx].status === 'done' ? 'Regenerate' : 'Generate'} dedication
+                  </Button>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  This will create a dedication page with your message overlaid on a decorative background.
                 </div>
               </div>
             ) : (
@@ -732,7 +887,9 @@ export function BuildContent() {
                 <div key={it.key} className={`flex items-center justify-between py-1 px-1 rounded ${idx===currentIdx?'bg-muted':''}`}>
                   <div className="truncate max-w-[60%]"><span className="text-muted-foreground">{it.label}</span></div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs">{it.status}</span>
+                    <span className="text-xs">
+                      {it.status === 'generating' && it.progress ? `${it.status} (${it.progress}%)` : it.status}
+                    </span>
                     <Button size="sm" variant="outline" onClick={()=> setCurrentIdx(idx)}>Open</Button>
                   </div>
                 </div>
@@ -747,8 +904,20 @@ export function BuildContent() {
           {items.filter(i=>i.pageType==='generated' && i.status==='done').length}/{items.filter(i=>i.pageType==='generated').length} images generated • Total {items.length} pages
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={()=> setViewerOpen(true)} disabled={!allDone}>View Book</Button>
-          <Button onClick={exportPdf} disabled={!allDone}>Export PDF</Button>
+          <Button variant="outline" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back
+          </Button>
+          <Button variant="outline" onClick={()=> setViewerOpen(true)} disabled={spreads.length===0}>View Book</Button>
+          <Button onClick={exportPdf} disabled={!allDone || exportingPdf}>
+            {exportingPdf ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Exporting...
+              </>
+            ) : (
+              'Export PDF'
+            )}
+          </Button>
         </div>
       </div>
 

@@ -152,6 +152,18 @@ export function QuickCreateContent() {
         createdAt: preview.createdAt,
       });
 
+      // Persist images and placeholders for downstream steps (build/checkout)
+      try {
+        sessionStorage.setItem('preview_images', JSON.stringify({
+          coverImage: preview.coverImage,
+          originalImage: preview.originalImage,
+          storyImages: preview.storyImages || [],
+        }));
+        const phRaw = sessionStorage.getItem('placeholder_values');
+        const ph = phRaw ? JSON.parse(phRaw) : {};
+        sessionStorage.setItem('placeholder_values', JSON.stringify({ ...ph, heroName }));
+      } catch {}
+
       // Ensure returning to step 3 when going back from preview
       try {
         sessionStorage.setItem('quick_create_state', JSON.stringify({

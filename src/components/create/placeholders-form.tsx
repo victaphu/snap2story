@@ -14,13 +14,15 @@ export function PlaceholdersForm({
   excludeKeys = [],
   initialValues,
   onChange,
+  preloadedPlaceholders,
 }: {
   storyId: string | undefined;
   excludeKeys?: string[];
   initialValues?: Values;
   onChange?: (values: Values) => void;
+  preloadedPlaceholders?: TemplatePlaceholder[];
 }) {
-  const [placeholdersRaw, setPlaceholdersRaw] = useState<TemplatePlaceholder[]>([]);
+  const [placeholdersRaw, setPlaceholdersRaw] = useState<TemplatePlaceholder[]>(() => Array.isArray(preloadedPlaceholders) ? preloadedPlaceholders : []);
   const [values, setValues] = useState<Values>({});
   const onChangeRef = useRef(onChange);
   useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
@@ -36,6 +38,12 @@ export function PlaceholdersForm({
 
   useEffect(() => {
     if (!storyId) return;
+    // If we have preloaded placeholders with content, hydrate and skip cache fast-path
+    if (Array.isArray(preloadedPlaceholders) && preloadedPlaceholders.length > 0) {
+      setPlaceholdersRaw(preloadedPlaceholders);
+      fetchedFor.current = storyId;
+      return;
+    }
     if (fetchedFor.current === storyId) return; // Already loaded for this story
     fetchedFor.current = storyId;
 
@@ -45,8 +53,11 @@ export function PlaceholdersForm({
       const cached = sessionStorage.getItem(cacheKey);
       if (cached) {
         const parsed: TemplatePlaceholder[] = JSON.parse(cached);
-        setPlaceholdersRaw(parsed);
-        return; // Use cached copy; no fetch
+        // Only short-circuit if cache has items; if empty, fall through to fetch
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setPlaceholdersRaw(parsed);
+          return; // Use cached copy; no fetch needed
+        }
       }
     } catch {}
 
@@ -112,7 +123,15 @@ export function PlaceholdersForm({
   }, [values]);
 
   if (!storyId) return null;
-  if (!placeholders.length) return null;
+  if (!placeholders.length) {
+    return (
+      <Card>
+        <CardContent className="p-4 sm:p-6 text-sm text-muted-foreground">
+          Loading placeholders…
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

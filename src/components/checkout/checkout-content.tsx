@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { PRICING, THEMES } from '@/lib/constants';
 import { ProgressSteps } from '@/components/create/progress-steps';
 // Avoid preview-context; read from session
-import { supabase } from '@/lib/services/supabase-client';
 import { ArrowLeft } from 'lucide-react';
 
 export function CheckoutContent() {
@@ -54,20 +53,7 @@ export function CheckoutContent() {
     } catch {}
   }, []);
 
-  const storyIdForCheckout = useMemo(() => {
-    // Try URL params if provided
-    const spStoryId = sp.get('storyId');
-    if (spStoryId) return spStoryId;
-    // Map theme slug if present
-    const themeSlug = sp.get('theme');
-    const map: Record<string, string> = {
-      adventure: 'adventure_flexible_multiage',
-      friendship: 'friendship_flexible_multiage',
-      family: 'family_flexible_multiage',
-      dreams: 'dreams_flexible_multiage',
-    };
-    return themeSlug ? map[themeSlug] : undefined;
-  }, [sp]);
+  const [storyIdForCheckout, setStoryIdForCheckout] = useState<string | undefined>(undefined);
 
   const selectedThemeName = useMemo(() => {
     const slug = sp.get('theme') || '';
@@ -91,29 +77,113 @@ export function CheckoutContent() {
     return (styleParam && map[styleParam]) || 'Bright Cartoon';
   }, [styleParam]);
 
-  // Fetch text-only pages for small carousel
+  // Resolve the exact template variant at checkout and persist story_id in session
   useEffect(() => {
-    const run = async () => {
-      if (!storyIdForCheckout) return;
+    const resolveTemplate = async () => {
       setLoadingPages(true);
       try {
         const ageGroup = sp.get('age') || '5-6';
         const ageNum = parseInt((ageGroup.split('-')[0] || '5'), 10);
-        const { data, error } = await supabase.rpc('get_story_pages_full_for_age', { p_story_id: storyIdForCheckout, p_age: ageNum });
-        if (!error && Array.isArray(data)) {
-          setPages(
-            data.map((r: any) => ({
-              pageNumber: Number(r.page_number),
-              text: String(r.text || ''),
-            }))
-          );
+        const length = Number(sp.get('length') || 20);
+
+        // Prefer explicit storyId from URL
+        const urlStoryId = sp.get('storyId');
+        if (urlStoryId) {
+          const qs = new URLSearchParams({ storyId: urlStoryId, age: String(ageNum), includePages: 'true', includeData: 'true' });
+          const resp = await fetch(`/api/templates/by-series?${qs.toString()}`);
+          if (resp.ok) {
+            const json = await resp.json();
+            console.log('loaded with pages', json);
+            const sid = json?.selected?.story_id || urlStoryId;
+            setStoryIdForCheckout(sid);
+            const seriesKey = json?.selected?.series_key || null;
+            const title = json?.selected?.title || '';
+            const theme = json?.selected?.theme || '';
+            const pageCount = json?.selected?.page_count || Number(sp.get('length') || 20);
+            const pageList = Array.isArray(json?.selected?.data?.pages)
+              ? json.selected.data.pages.map((r: any) => ({
+                  pageNumber: Number(r.pageNumber),
+                  text: applyPlaceholders(String(r.text[selectedAge] || '')),
+                  imageDescription: String(r.imageDescription || ''),
+                }))
+              : [];
+            setPages(pageList.map((p: any) => ({ pageNumber: p.pageNumber, text: p.text })));
+            const storyObj = { storyId: sid, seriesKey, title, theme, pageCount, age: ageGroup, pages: pageList };
+            try {
+              sessionStorage.setItem('selected_story_template', JSON.stringify(storyObj));
+              sessionStorage.setItem('selected_story', JSON.stringify(storyObj));
+            } catch {}
+          }
+          return;
+        }
+
+        // Otherwise use selected_series from session + length
+        let seriesKey: string | null = null;
+        try {
+          const ss = sessionStorage.getItem('selected_series');
+          if (ss) seriesKey = String(JSON.parse(ss)?.series_key || '') || null;
+        } catch {}
+        if (!seriesKey) return;
+
+        const qs = new URLSearchParams({ seriesKey, pageCount: String(length), age: String(ageNum), includePages: 'true', includeData: 'true' });
+        const resp = await fetch(`/api/templates/by-series?${qs.toString()}`);
+        if (!resp.ok) return;
+        const json = await resp.json();
+
+        console.log('loaded with pages2', json);
+        const sid = json?.selected?.story_id || json?.templates?.[0]?.story_id || undefined;
+        if (sid) {
+          setStoryIdForCheckout(sid);
+          const seriesFromResp = json?.selected?.series_key || seriesKey;
+          const title = json?.selected?.title || '';
+          const theme = json?.selected?.theme || '';
+          const pageList = Array.isArray(json?.selected?.data?.pages)
+            ? json.selected.data.pages.map((r: any) => ({
+                pageNumber: Number(r.pageNumber),
+                text: applyPlaceholders(String(r.text[selectedAge] || '')),
+                imageDescription: String(r.imageDescription || ''),
+              }))
+            : [];
+          const storyObj = { storyId: sid, seriesKey: seriesFromResp, title, theme, pageCount: length, age: ageGroup, pages: pageList };
+          try {
+            sessionStorage.setItem('selected_story_template', JSON.stringify(storyObj));
+            sessionStorage.setItem('selected_story', JSON.stringify(storyObj));
+          } catch {}
+        }
+        if (Array.isArray(json?.pages)) {
+          const pageList = json.pages.map((r: any) => ({ pageNumber: Number(r.pageNumber), text: applyPlaceholders(String(r.text || '')) }));
+          setPages(pageList);
         }
       } finally {
         setLoadingPages(false);
       }
     };
-    run();
-  }, [storyIdForCheckout, sp]);
+    resolveTemplate();
+  }, [sp]);
+
+  // Ensure pages are persisted in session for the build screen
+  useEffect(() => {
+    if (!storyIdForCheckout) return;
+    try {
+      const raw = sessionStorage.getItem('selected_story');
+      const existing = raw ? JSON.parse(raw) : {};
+      const hasExistingPages = Array.isArray(existing?.pages) && existing.pages.length > 0;
+      if (!hasExistingPages && pages.length > 0) {
+        const length = Number(sp.get('length') || 20);
+        const ageGroup = sp.get('age') || '5-6';
+        const updated = {
+          ...(existing || {}),
+          storyId: storyIdForCheckout,
+          pageCount: existing?.pageCount || length,
+          age: existing?.age || ageGroup,
+          // Note: this path only has text/number; earlier resolution saved imageDescription as well
+          pages: pages.map((p) => ({ pageNumber: p.pageNumber, text: p.text })),
+        };
+        sessionStorage.setItem('selected_story', JSON.stringify(updated));
+        sessionStorage.setItem('selected_story_template', JSON.stringify({ storyId: storyIdForCheckout }));
+      }
+    } catch {}
+  }, [storyIdForCheckout, pages]);
 
   const applyPlaceholders = (text: string) => {
     if (!text) return '';
