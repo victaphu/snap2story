@@ -205,7 +205,14 @@ export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: str
         if (bytes.length) {
           let img;
           try { img = await pdfDoc.embedPng(bytes); } catch { img = await pdfDoc.embedJpg(bytes); }
-          page.drawImage(img, { x: 0, y: 0, width: half, height: pageSize });
+          // Dedication page: render image at 60% height, centered vertically
+          if (leftItem.key === 'dedication') {
+            const imgHeight = pageSize * 0.6;
+            const y = (pageSize - imgHeight) / 2;
+            page.drawImage(img, { x: 0, y, width: half, height: imgHeight });
+          } else {
+            page.drawImage(img, { x: 0, y: 0, width: half, height: pageSize });
+          }
         }
       }
     }
@@ -216,14 +223,21 @@ export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: str
       if (bytes.length) {
         let img;
         try { img = await pdfDoc.embedPng(bytes); } catch { img = await pdfDoc.embedJpg(bytes); }
-        page.drawImage(img, { x: half, y: 0, width: half, height: pageSize });
+        // Dedication page on right: render image at 60% height, centered vertically
+        if (rightItem.key === 'dedication') {
+          const imgHeight = pageSize * 0.6;
+          const y = (pageSize - imgHeight) / 2;
+          page.drawImage(img, { x: half, y, width: half, height: imgHeight });
+        } else {
+          page.drawImage(img, { x: half, y: 0, width: half, height: pageSize });
+        }
 
         // Optional text overlay on right image
         if (rightItem.storyText && rightItem.storyText.trim()) {
           const outerPadding = 50;
           const innerPadding = 16;
-          const borderWidth = 4;
-          const fontSize = 32;
+          const borderWidth = 6; // thicker border
+          const fontSize = 36;   // larger, friendlier font size
           const lineHeight = 1.3;
           const maxTextWidth = half * 0.9 - outerPadding * 2 - innerPadding * 2;
 
@@ -313,4 +327,3 @@ export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: str
   a.remove();
   URL.revokeObjectURL(url);
 }
-

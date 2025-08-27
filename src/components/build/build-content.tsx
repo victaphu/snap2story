@@ -689,12 +689,15 @@ export function BuildContent() {
             {/* Children's book style text overlay for right-side images */}
             {side==='right' && page.text && page.text.trim() && (
               <div className="absolute inset-x-4 bottom-4">
-                <div className="relative">
-                  {/* Border/shadow effect */}
-                  <div className="absolute inset-0 bg-gray-300 rounded-xl transform translate-x-1 translate-y-1"></div>
-                  {/* Main text box */}
-                  <div className="relative bg-white/95 border-4 border-gray-200 rounded-xl px-4 py-3 shadow-lg">
-                    <div className="text-center text-gray-800 text-sm font-medium leading-relaxed whitespace-pre-wrap" style={{ fontFamily: 'Comic Sans MS, cursive, fantasy' }}>
+                <div className="relative max-w-[92%] mx-auto">
+                  {/* Drop shadow offset */}
+                  <div className="absolute inset-0 bg-gray-300 rounded-2xl transform translate-x-1 translate-y-1" />
+                  {/* Main bordered box */}
+                  <div className="relative bg-white/95 border-4 md:border-6 border-gray-200 rounded-2xl px-4 md:px-6 py-3 md:py-4 shadow-lg">
+                    <div
+                      className="text-center text-gray-800 whitespace-pre-wrap leading-relaxed font-semibold text-base md:text-xl"
+                      style={{ fontFamily: 'Comic Sans MS, cursive, fantasy' }}
+                    >
                       {page.text}
                     </div>
                   </div>
@@ -756,8 +759,20 @@ export function BuildContent() {
                   </div>
                 </div>
               ) : items[currentIdx]?.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={items[currentIdx].image} alt={items[currentIdx].label} className="w-full h-full object-cover" />
+                items[currentIdx]?.key === 'dedication' ? (
+                  // Dedication image displayed at 60% height of the square area
+                  <div className="w-full h-full flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={items[currentIdx].image}
+                      alt={items[currentIdx].label}
+                      style={{ height: '60%', width: 'auto', objectFit: 'contain' }}
+                    />
+                  </div>
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={items[currentIdx].image} alt={items[currentIdx].label} className="w-full h-full object-cover" />
+                )
               ) : (
                 <div className="text-muted-foreground text-sm">
                   {items[currentIdx]?.status === 'generating' ? (
