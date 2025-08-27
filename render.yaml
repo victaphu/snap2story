@@ -53,6 +53,13 @@ services:
     region: oregon
     plan: starter
     maxmemoryPolicy: allkeys-lru
+    ipAllowList:
+      # TODO: tighten these CIDRs to just your office/VPC egress IPs.
+      # For quick start, this allows connections from anywhere (both IPv4/IPv6).
+      - source: 0.0.0.0/0
+        description: Allow all IPv4
+      - source: ::/0
+        description: Allow all IPv6
 
 # Environment variable group for secrets
 envVarGroups:
