@@ -6,8 +6,8 @@ services:
     env: node
     region: oregon
     plan: starter
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -33,8 +33,8 @@ services:
     env: node
     region: oregon
     plan: starter
-    buildCommand: npm install && npm run build
-    startCommand: npm run worker
+    buildCommand: cd backend && npm install && npm run build
+    startCommand: cd backend && npm run worker
     envVars:
       - key: NODE_ENV
         value: production
