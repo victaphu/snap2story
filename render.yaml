@@ -54,12 +54,11 @@ services:
     plan: starter
     maxmemoryPolicy: allkeys-lru
     ipAllowList:
-      # TODO: tighten these CIDRs to just your office/VPC egress IPs.
-      # For quick start, this allows connections from anywhere (both IPv4/IPv6).
+      # TODO: tighten this to known egress IPs. This wide-open IPv4
+      # CIDR is acceptable for initial testing but not recommended
+      # for production.
       - source: 0.0.0.0/0
         description: Allow all IPv4
-      - source: ::/0
-        description: Allow all IPv6
 
 # Environment variable group for secrets
 envVarGroups:
@@ -69,3 +68,5 @@ envVarGroups:
         value: your_openai_api_key_here
       - key: QWEN_3_IMAGE_EDIT_KEY
         value: your_qwen_api_key_here
+      - key: CLERK_SECRET_KEY
+        value: your_clerk_secret_key_here

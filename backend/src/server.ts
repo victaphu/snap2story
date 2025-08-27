@@ -6,6 +6,7 @@ import { initializeWebSocket } from './services/websocket';
 import { initializeRedis } from './services/queue';
 import Redis from 'ioredis';
 import jobRoutes from './routes/jobs';
+import rateLimit from 'express-rate-limit';
 
 // Load environment variables
 dotenv.config();
@@ -27,8 +28,20 @@ app.use(cors({
   credentials: true,
 }));
 
+// Trust proxy (Render/HEROKU) for accurate IPs in rate limiter
+app.set('trust proxy', 1);
+
+// Basic rate limiter for job routes
+const jobsLimiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10),
+  max: parseInt(process.env.RATE_LIMIT_MAX || '30', 10),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' }
+});
+
 // Routes
-app.use('/api/jobs', jobRoutes);
+app.use('/api/jobs', jobsLimiter, jobRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

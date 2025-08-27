@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { requireClerkAuth } from '../middleware/auth';
 import { createNanoId } from '../utils/nanoid';
 import { ImageGenerationJobData } from '../types/index';
 import { addImageGenerationJob, getJobProgress, getQueueStats } from '../services/queue';
@@ -6,7 +7,7 @@ import { addImageGenerationJob, getJobProgress, getQueueStats } from '../service
 const router = Router();
 
 // Create a new image generation job
-router.post('/generate-image', async (req: Request, res: Response) => {
+router.post('/generate-image', requireClerkAuth, async (req: Request, res: Response) => {
   try {
     const {
       heroName,
