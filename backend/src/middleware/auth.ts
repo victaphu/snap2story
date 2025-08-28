@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '@clerk/express';
+import { verifyToken } from '@clerk/backend';
 
 // Verifies Clerk JWTs passed in Authorization: Bearer <token>
 export async function requireClerkAuth(req: Request, res: Response, next: NextFunction) {
