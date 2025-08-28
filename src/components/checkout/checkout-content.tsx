@@ -103,7 +103,7 @@ export function CheckoutContent() {
             const pageList = Array.isArray(json?.selected?.data?.pages)
               ? json.selected.data.pages.map((r: any) => ({
                   pageNumber: Number(r.pageNumber),
-                  text: applyPlaceholders(String(r.text[selectedAge] || '')),
+                  text: String(r.text[selectedAge] || ''),
                   imageDescription: String(r.imageDescription || ''),
                 }))
               : [];

@@ -58,7 +58,7 @@ async function fetchBytes(src: string): Promise<Uint8Array> {
   }
 }
 
-export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: string }) {
+export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: string; heroName?: string; theme?: string }) {
   const PDFLib = await ensurePdfLib();
   const { PDFDocument, StandardFonts, rgb } = PDFLib;
   const pdfDoc = await PDFDocument.create();
@@ -110,11 +110,11 @@ export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: str
 
     if (textOverlay && textOverlay.trim()) {
       const outerPadding = 100;
-      const innerPadding = 32;
-      const borderWidth = 8;
-      const fontSize = 56;
-      const lineHeight = 1.3;
-      const maxTextWidth = pageSize * 0.9 - outerPadding * 2 - innerPadding * 2;
+      const innerPadding = 48;  // Increased padding
+      const borderWidth = 12;   // Thicker border
+      const fontSize = 72;      // Larger font for better readability
+      const lineHeight = 1.4;   // More spacing between lines
+      const maxTextWidth = pageSize * 0.85 - outerPadding * 2 - innerPadding * 2;
 
       const words = textOverlay.split(/\s+/);
       const lines: string[] = [];
@@ -131,25 +131,27 @@ export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: str
       if (currentLine) lines.push(currentLine);
 
       const textHeight = lines.length * (fontSize * lineHeight);
-      const boxWidth = pageSize * 0.9 - outerPadding * 2;
+      const boxWidth = pageSize * 0.85 - outerPadding * 2;
       const boxHeight = textHeight + innerPadding * 2;
       const boxX = (pageSize - boxWidth) / 2;
       const boxY = outerPadding;
 
+      // Outer border - darker color for better contrast
       page.drawRectangle({
         x: boxX - borderWidth,
         y: boxY - borderWidth,
         width: boxWidth + borderWidth * 2,
         height: boxHeight + borderWidth * 2,
-        color: rgb(0.886, 0.91, 0.941),
+        color: rgb(0.3, 0.4, 0.5),  // Darker border
       });
 
+      // Inner background - bright white for readability
       page.drawRectangle({
         x: boxX,
         y: boxY,
         width: boxWidth,
         height: boxHeight,
-        color: rgb(0.98, 0.98, 0.98),
+        color: rgb(1, 1, 1),  // Pure white background
       });
 
       const textStartY = boxY + boxHeight - innerPadding - fontSize * 0.8;
@@ -205,14 +207,8 @@ export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: str
         if (bytes.length) {
           let img;
           try { img = await pdfDoc.embedPng(bytes); } catch { img = await pdfDoc.embedJpg(bytes); }
-          // Dedication page: render image at 60% height, centered vertically
-          if (leftItem.key === 'dedication') {
-            const imgHeight = pageSize * 0.6;
-            const y = (pageSize - imgHeight) / 2;
-            page.drawImage(img, { x: 0, y, width: half, height: imgHeight });
-          } else {
-            page.drawImage(img, { x: 0, y: 0, width: half, height: pageSize });
-          }
+          // All pages including dedication: render full size
+          page.drawImage(img, { x: 0, y: 0, width: half, height: pageSize });
         }
       }
     }
@@ -223,23 +219,17 @@ export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: str
       if (bytes.length) {
         let img;
         try { img = await pdfDoc.embedPng(bytes); } catch { img = await pdfDoc.embedJpg(bytes); }
-        // Dedication page on right: render image at 60% height, centered vertically
-        if (rightItem.key === 'dedication') {
-          const imgHeight = pageSize * 0.6;
-          const y = (pageSize - imgHeight) / 2;
-          page.drawImage(img, { x: half, y, width: half, height: imgHeight });
-        } else {
-          page.drawImage(img, { x: half, y: 0, width: half, height: pageSize });
-        }
+        // All pages including dedication: render full size
+        page.drawImage(img, { x: half, y: 0, width: half, height: pageSize });
 
         // Optional text overlay on right image
         if (rightItem.storyText && rightItem.storyText.trim()) {
           const outerPadding = 50;
-          const innerPadding = 16;
-          const borderWidth = 6; // thicker border
-          const fontSize = 36;   // larger, friendlier font size
-          const lineHeight = 1.3;
-          const maxTextWidth = half * 0.9 - outerPadding * 2 - innerPadding * 2;
+          const innerPadding = 32;    // Increased padding
+          const borderWidth = 10;     // Thicker border
+          const fontSize = 48;        // Much larger font size
+          const lineHeight = 1.4;     // Better line spacing
+          const maxTextWidth = half * 0.85 - outerPadding * 2 - innerPadding * 2;
 
           const words = rightItem.storyText.split(/\s+/);
           const lines: string[] = [];
@@ -256,25 +246,27 @@ export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: str
           if (currentLine) lines.push(currentLine);
 
           const textHeight = lines.length * (fontSize * lineHeight);
-          const boxWidth = half * 0.9 - outerPadding * 2;
+          const boxWidth = half * 0.85 - outerPadding * 2;
           const boxHeight = textHeight + innerPadding * 2;
           const boxX = half + (half - boxWidth) / 2;
           const boxY = outerPadding;
 
+          // Outer border - darker color for better contrast
           page.drawRectangle({
             x: boxX - borderWidth,
             y: boxY - borderWidth,
             width: boxWidth + borderWidth * 2,
             height: boxHeight + borderWidth * 2,
-            color: rgb(0.886, 0.91, 0.941),
+            color: rgb(0.3, 0.4, 0.5),  // Darker border
           });
 
+          // Inner background - bright white for readability
           page.drawRectangle({
             x: boxX,
             y: boxY,
             width: boxWidth,
             height: boxHeight,
-            color: rgb(0.98, 0.98, 0.98),
+            color: rgb(1, 1, 1),  // Pure white background
           });
 
           const textStartY = boxY + boxHeight - innerPadding - fontSize * 0.8;
@@ -320,8 +312,17 @@ export async function exportBookPdf(items: ExportItem[], opts?: { fileName?: str
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  const defaultName = (items.find((i) => i.key === 'cover')?.label || 'book') + '.pdf';
-  a.download = opts?.fileName || defaultName;
+  
+  // Generate filename with hero name, theme, and timestamp
+  let fileName = opts?.fileName;
+  if (!fileName) {
+    const heroName = opts?.heroName || 'Hero';
+    const theme = opts?.theme || 'story';
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    fileName = `${heroName}_${theme}_${timestamp}.pdf`;
+  }
+  
+  a.download = fileName;
   document.body.appendChild(a);
   a.click();
   a.remove();

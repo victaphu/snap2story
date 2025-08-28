@@ -150,12 +150,12 @@ export function BuildContent() {
     if (currentJob && isGenerating && !hasReconnectedRef.current) {
       hasReconnectedRef.current = true;
       console.log('🔄 Build screen: Reconnected to active job', currentJob);
-      
+
       // First try to restore the previously generating index
       let generatingIndex = -1;
       const savedKey = sessionStorage.getItem('build_generating_key');
       let savedIndex = sessionStorage.getItem('build_generating_index');
-      
+
       if (savedKey) {
         const idx = items.findIndex(it => it.key === savedKey);
         if (idx >= 0) {
@@ -171,21 +171,21 @@ export function BuildContent() {
           console.log('📍 Restored generating index from session:', generatingIndex);
         }
       }
-      
+
       // If no saved index or invalid, find the first item that's generating or pending
       if (generatingIndex === -1) {
-        generatingIndex = items.findIndex(item => 
-          item.status === 'generating' || 
+        generatingIndex = items.findIndex(item =>
+          item.status === 'generating' ||
           (item.status === 'pending' && item.pageType === 'generated')
         );
       }
-      
+
       // If still nothing found, assume regenerating from start
       if (generatingIndex === -1 && items.length > 0) {
         generatingIndex = items.findIndex(item => item.pageType === 'generated');
         console.log('🔄 No pending items found, starting from first generated item:', generatingIndex);
       }
-      
+
       if (generatingIndex !== -1) {
         setCurrentGeneratingIndex(generatingIndex);
         currentGeneratingKeyRef.current = items[generatingIndex]?.key || null;
@@ -239,7 +239,7 @@ export function BuildContent() {
           if (rows.length > 0) setDbPages(rows);
         }
       }
-    } catch {}
+    } catch { }
   }, []);
 
   const storyId = useMemo(() => {
@@ -252,7 +252,7 @@ export function BuildContent() {
         const obj = JSON.parse(raw);
         if (obj?.storyId) return String(obj.storyId);
       }
-    } catch {}
+    } catch { }
     if (!themeSlug) return undefined as string | undefined;
     const map: Record<string, string> = {
       adventure: 'adventure_flexible_multiage',
@@ -272,10 +272,12 @@ export function BuildContent() {
   const applyPH = (text: string) => {
     if (!text) return '';
     let out = text;
-    const map = { ...(placeholderValues||{}), heroName: heroName || placeholderValues?.heroName || 'Hero' } as Record<string,string>;
+    const map = { ...placeholderValues }//{ ...(placeholderValues||{}), heroName: heroName || placeholderValues?.heroName || 'Hero' } as Record<string,string>;
+    console.log('replace placeholder', map, text);
     for (const [k, v] of Object.entries(map)) {
       out = out.replace(new RegExp(`\\{${k}\\}`, 'g'), v ?? '');
     }
+    console.log('result is now', map['heroName'], out)
     return out;
   };
 
@@ -294,7 +296,7 @@ export function BuildContent() {
     if (!dbPages || dbPages.length === 0) {
       return; // don't process until db pages is loaded
     }
-    
+
     // 1. Cover — reuse previously generated image; do not regenerate
     plan.push({
       key: 'cover',
@@ -306,7 +308,7 @@ export function BuildContent() {
       regenCount: 0,
       pageType: 'generated',
     });
-    
+
     // 2. Blank page
     plan.push({
       key: 'blank-page',
@@ -316,11 +318,11 @@ export function BuildContent() {
       canEdit: false,
       pageType: 'blank',
     });
-    
+
     // 3. Dedication (AI via backend generation)
-    plan.push({ 
-      key: 'dedication', 
-      label: 'Dedication Page (Page 3)', 
+    plan.push({
+      key: 'dedication',
+      label: 'Dedication Page (Page 3)',
       prompt: [
         fullBleed,
         'Create a warm, inviting background perfect for a dedication page.',
@@ -330,13 +332,13 @@ export function BuildContent() {
         `Art style: ${styleDescription}.`,
         'Generate only the background illustration without any text.',
       ].join(' '),
-      status: 'pending', 
-      canEdit: true, 
+      status: 'pending',
+      canEdit: true,
       regenCount: 0,
       pageType: 'generated',
       kind: 'dedication',
     });
-    
+
     // 4. Interior pages: alternating text-only and text+image pages
     const genCount = Math.max(0, Number(length || 0));
     console.log('🎨 Generation Plan Debug:', {
@@ -346,9 +348,9 @@ export function BuildContent() {
       dbPagesContent: dbPages.filter(p => !p.isTitle && !p.isDedication && p.pageNumber >= 1).length,
       dbPages,
     });
-    
+
     let content = dbPages.filter(p => !p.isTitle && !p.isDedication && p.pageNumber >= 1);
-    
+
     if (content.length === 0) {
       console.error('No story content pages found for the selected series/page count.');
       const errorPlan: GenItem[] = [{
@@ -364,17 +366,17 @@ export function BuildContent() {
       setItems(errorPlan);
       return;
     }
-    
+
     console.log('✅ Using DB content pages:', content.length, 'will cycle through for', genCount, 'pages');
     console.log('📖 Content preview:', content.slice(0, 3).map(c => ({ page: c.pageNumber, text: c.text.substring(0, 100) })));
-    
+
     let pageNum = 4;
     let storyIndex = 0;
-    
+
     // Generate interior pages with alternating pattern
     for (let i = 0; i < genCount; i++) {
       const isTextOnly = (i % 2 === 0); // Even indices (0, 2, 4...) are text-only pages
-      
+
       if (isTextOnly) {
         // Text-only page
         const src = content[storyIndex % content.length]; // Use storyIndex and wrap around
@@ -418,7 +420,7 @@ export function BuildContent() {
       }
       pageNum++;
     }
-    
+
     // 5. Last 3 static pages
     plan.push({
       key: 'last-1',
@@ -431,7 +433,7 @@ export function BuildContent() {
       image: '/page-last-001.png',
     });
     pageNum++;
-    
+
     plan.push({
       key: 'last-2',
       label: `Page ${pageNum} - About`,
@@ -443,7 +445,7 @@ export function BuildContent() {
       image: '/page-last-002.png',
     });
     pageNum++;
-    
+
     plan.push({
       key: 'last-3',
       label: `Page ${pageNum} - Back Cover`,
@@ -472,7 +474,7 @@ export function BuildContent() {
       if (composed) {
         setItems((prev) => prev.map((it) => it.key === 'last-1' ? { ...it, image: composed } : it));
       }
-    } catch {}
+    } catch { }
   }, [dbPages, heroName, length, styleKey, themeSlug, existingCover]);
 
   // Progressive generator
@@ -512,19 +514,19 @@ export function BuildContent() {
   const generateAt = async (i: number) => {
     const it = items[i];
     if (!it || it.status === 'generating' || isGenerating) return;
-    
+
     // Dedication uses local generation (special case)
     if (it.key === 'dedication') {
       const isRegen = it.status !== 'pending';
-      if (isRegen && !canRegenerate(i)) { 
-        alert('Regeneration limits reached (max 2 per page, total 10).'); 
-        return; 
+      if (isRegen && !canRegenerate(i)) {
+        alert('Regeneration limits reached (max 2 per page, total 10).');
+        return;
       }
       updateItem(i, { status: 'generating' });
       setCurrentGeneratingIndex(i);
       currentGeneratingKeyRef.current = it.key;
-      try { sessionStorage.setItem('build_generating_key', it.key); } catch {}
-      
+      try { sessionStorage.setItem('build_generating_key', it.key); } catch { }
+
       try {
         const img = await composeDedicationImage(applyPH(dedication));
         updateItem(i, { status: 'done', image: img, regenCount: (it.regenCount || 0) + (isRegen ? 1 : 0) });
@@ -537,23 +539,23 @@ export function BuildContent() {
       }
       return;
     }
-    
+
     if (it.key === 'cover' || it.canEdit === false) {
       return; // never regenerate cover
     }
-    
+
     // Others via queue system
     if (!originalImage) { alert('Missing uploaded photo for likeness.'); return; }
-    
+
     const isRegen = it.status !== 'pending';
     if (isRegen && !canRegenerate(i)) { alert('Regeneration limits reached (max 2 per page, total 10).'); return; }
-    
+
     // Set current generating index for progress tracking
     setCurrentGeneratingIndex(i);
     currentGeneratingKeyRef.current = it.key;
-    try { sessionStorage.setItem('build_generating_key', it.key); } catch {}
+    try { sessionStorage.setItem('build_generating_key', it.key); } catch { }
     updateItem(i, { status: 'generating', progress: 0, message: 'Queueing job...' });
-    
+
     try {
       const request = {
         heroName: heroName || 'Hero',
@@ -567,9 +569,9 @@ export function BuildContent() {
         coverPromptOverride: it.key !== 'cover' ? it.prompt : undefined,
         storyText: it.storyText
       };
-      
+
       await generateImage(request);
-      
+
       // Update regeneration count
       if (isRegen) {
         updateItem(i, { regenCount: (it.regenCount || 0) + 1 });
@@ -598,7 +600,9 @@ export function BuildContent() {
     setExportingPdf(true);
     try {
       const { exportBookPdf } = await import('@/lib/pdf/export');
-      await exportBookPdf(items as any);
+      const actualHeroName = heroName || placeholderValues?.heroName || 'Hero';
+      const theme = selectedStory?.theme || themeSlug || 'adventure';
+      await exportBookPdf(items as any, { heroName: actualHeroName, theme });
     } catch (e) {
       console.error('Export PDF failed:', e);
       alert('Failed to export PDF');
@@ -609,26 +613,26 @@ export function BuildContent() {
 
   // Build book spreads for viewer - match PDF layout exactly
   const spreads = useMemo(() => {
-    const arr: Array<{ left?: { type: 'blank'|'text'|'image'; text?: string; src?: string }, right?: { type: 'blank'|'text'|'image'; text?: string; src?: string }, singleRight?: boolean }>= [];
-    
+    const arr: Array<{ left?: { type: 'blank' | 'text' | 'image'; text?: string; src?: string }, right?: { type: 'blank' | 'text' | 'image'; text?: string; src?: string }, singleRight?: boolean }> = [];
+
     // 1) Cover only (single right page)
     const coverItem = items.find(item => item.key === 'cover');
     if (coverItem?.image) {
       arr.push({ right: { type: 'image', src: coverItem.image }, singleRight: true });
     }
-    
+
     // 2) Process remaining items in pairs for side-by-side layout (matching PDF logic)
     const remainingItems = items.slice(1); // Skip cover
     const lastThreeItems = remainingItems.slice(-3); // Last 3 static pages
     const contentItems = remainingItems.slice(0, -3); // Everything except last 3
-    
+
     // Process content items in pairs
     for (let i = 0; i < contentItems.length; i += 2) {
       const leftItem = contentItems[i];
       const rightItem = contentItems[i + 1];
-      
+
       // Left side
-      let left: { type: 'blank'|'text'|'image'; text?: string; src?: string } | undefined;
+      let left: { type: 'blank' | 'text' | 'image'; text?: string; src?: string } | undefined;
       if (leftItem) {
         if (leftItem.pageType === 'blank') {
           left = { type: 'blank' };
@@ -638,9 +642,9 @@ export function BuildContent() {
           left = { type: 'image', src: leftItem.image || leftItem.staticImagePath };
         }
       }
-      
+
       // Right side
-      let right: { type: 'blank'|'text'|'image'; text?: string; src?: string } | undefined;
+      let right: { type: 'blank' | 'text' | 'image'; text?: string; src?: string } | undefined;
       if (rightItem) {
         if (rightItem.pageType === 'blank') {
           right = { type: 'blank' };
@@ -650,26 +654,26 @@ export function BuildContent() {
           right = { type: 'image', src: rightItem.image || rightItem.staticImagePath, text: rightItem.storyText };
         }
       }
-      
+
       arr.push({ left, right });
     }
-    
+
     // 3) Last 3 pages as individual single pages (matching PDF behavior)
     for (const item of lastThreeItems) {
       if (item.pageType === 'static' && item.image) {
         arr.push({ right: { type: 'image', src: item.image || item.staticImagePath }, singleRight: true });
       }
     }
-    
+
     return arr;
   }, [items]);
 
   const [spreadIdx, setSpreadIdx] = useState(0);
   useEffect(() => { if (viewerOpen) setSpreadIdx(0); }, [viewerOpen]);
 
-  const renderPage = (side: 'left'|'right', page?: { type: 'blank'|'text'|'image'; text?: string; src?: string }) => {
+  const renderPage = (side: 'left' | 'right', page?: { type: 'blank' | 'text' | 'image'; text?: string; src?: string }) => {
     return (
-      <div className={`relative w-full aspect-square bg-white border rounded overflow-hidden flex items-center justify-center ${side==='left'?'':'order-2'}`}>
+      <div className={`relative w-full aspect-square bg-white border rounded overflow-hidden flex items-center justify-center ${side === 'left' ? '' : 'order-2'}`}>
         {page?.type === 'blank' && (
           <div className="w-full h-full bg-white flex items-center justify-center text-gray-400 italic text-sm">
             This page intentionally left blank
@@ -687,7 +691,7 @@ export function BuildContent() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={page.src || ''} alt="page" className="w-full h-full object-cover" />
             {/* Children's book style text overlay for right-side images */}
-            {side==='right' && page.text && page.text.trim() && (
+            {side === 'right' && page.text && page.text.trim() && (
               <div className="absolute inset-x-4 bottom-4">
                 <div className="relative max-w-[92%] mx-auto">
                   {/* Drop shadow offset */}
@@ -723,16 +727,16 @@ export function BuildContent() {
         {(() => {
           const generatedItems = items.filter(it => it.pageType === 'generated');
           const total = generatedItems.length || 1;
-          const done = generatedItems.filter(i=>i.status==='done').length;
-          const percent = Math.round((done/total)*100);
-          const secs = Math.ceil(etaMs/1000);
-          const mm = Math.floor(secs/60).toString();
-          const ss = (secs%60).toString().padStart(2,'0');
+          const done = generatedItems.filter(i => i.status === 'done').length;
+          const percent = Math.round((done / total) * 100);
+          const secs = Math.ceil(etaMs / 1000);
+          const mm = Math.floor(secs / 60).toString();
+          const ss = (secs % 60).toString().padStart(2, '0');
           return (
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{done}/{total} images generated</span>
-                <span>ETA ~ {secs>0 ? `${mm}:${ss}` : '—'}</span>
+                <span>ETA ~ {secs > 0 ? `${mm}:${ss}` : '—'}</span>
               </div>
               <div className="w-full h-2 rounded bg-background overflow-hidden">
                 <div className="h-full bg-primary transition-all" style={{ width: `${percent}%` }} />
@@ -796,8 +800,8 @@ export function BuildContent() {
         {/* Right: prompt + controls */}
         <Card>
           <CardHeader><CardTitle>
-            {items[currentIdx]?.pageType === 'blank' || items[currentIdx]?.pageType === 'text-only' || items[currentIdx]?.pageType === 'static' 
-              ? 'Page Details' 
+            {items[currentIdx]?.pageType === 'blank' || items[currentIdx]?.pageType === 'text-only' || items[currentIdx]?.pageType === 'static'
+              ? 'Page Details'
               : 'Prompt'}
           </CardTitle></CardHeader>
           <CardContent className="space-y-3">
@@ -835,10 +839,10 @@ export function BuildContent() {
                           try {
                             const composed = await composeLastOverlayImage(String(reader.result));
                             updateItem(currentIdx, { image: composed });
-                            try { 
+                            try {
                               sessionStorage.setItem('last_page_overlay', String(reader.result));
                               sessionStorage.setItem('last_page_composed', composed);
-                            } catch {}
+                            } catch { }
                           } catch (err) {
                             console.error('Failed composing last page overlay', err);
                             alert('Failed to compose dedication image');
@@ -854,15 +858,15 @@ export function BuildContent() {
             ) : items[currentIdx]?.key === 'dedication' ? (
               <div className="space-y-2">
                 <Label>Dedication message</Label>
-                <Textarea 
-                  value={dedication} 
-                  onChange={(e) => setDedication(e.target.value)} 
-                  rows={4} 
+                <Textarea
+                  value={dedication}
+                  onChange={(e) => setDedication(e.target.value)}
+                  rows={4}
                   placeholder="A special message for your book..."
                 />
                 <div className="flex gap-2">
-                  <Button 
-                    onClick={() => generateAt(currentIdx)} 
+                  <Button
+                    onClick={() => generateAt(currentIdx)}
                     disabled={items[currentIdx].status === 'generating'}
                   >
                     {items[currentIdx].status === 'done' ? 'Regenerate' : 'Generate'} dedication
@@ -874,7 +878,7 @@ export function BuildContent() {
               </div>
             ) : (
               <div className="space-y-2">
-                <Textarea value={items[currentIdx]?.prompt || ''} onChange={(e)=> updateItem(currentIdx, { prompt: e.target.value })} rows={8} />
+                <Textarea value={items[currentIdx]?.prompt || ''} onChange={(e) => updateItem(currentIdx, { prompt: e.target.value })} rows={8} />
                 {items[currentIdx]?.storyText && (
                   <div className="text-xs text-muted-foreground">
                     <div className="font-medium mb-1">Story text</div>
@@ -882,16 +886,16 @@ export function BuildContent() {
                   </div>
                 )}
                 <div className="flex gap-2 items-center">
-                  <Button onClick={()=> generateAt(currentIdx)} disabled={items[currentIdx]?.status==='generating' || items[currentIdx]?.canEdit===false || (items[currentIdx]?.status!=='pending' && !canRegenerate(currentIdx))}>
-                    {items[currentIdx]?.status==='pending' ? 'Generate' : 'Regenerate'}
+                  <Button onClick={() => generateAt(currentIdx)} disabled={items[currentIdx]?.status === 'generating' || items[currentIdx]?.canEdit === false || (items[currentIdx]?.status !== 'pending' && !canRegenerate(currentIdx))}>
+                    {items[currentIdx]?.status === 'pending' ? 'Generate' : 'Regenerate'}
                   </Button>
                   <label className="text-sm flex items-center gap-2">
-                    <input type="checkbox" checked={autoRun} onChange={(e)=> setAutoRun(e.target.checked)} /> Auto‑run next pages
+                    <input type="checkbox" checked={autoRun} onChange={(e) => setAutoRun(e.target.checked)} /> Auto‑run next pages
                   </label>
                 </div>
-                {items[currentIdx]?.status!=='pending' && (
+                {items[currentIdx]?.status !== 'pending' && (
                   <div className="text-xs text-muted-foreground">
-                    Regens used: {(items[currentIdx]?.regenCount||0)}/2 • Total: {regenTotal}/10
+                    Regens used: {(items[currentIdx]?.regenCount || 0)}/2 • Total: {regenTotal}/10
                   </div>
                 )}
               </div>
@@ -899,13 +903,13 @@ export function BuildContent() {
 
             <div className="border rounded p-2 max-h-64 overflow-auto text-sm">
               {items.map((it, idx) => (
-                <div key={it.key} className={`flex items-center justify-between py-1 px-1 rounded ${idx===currentIdx?'bg-muted':''}`}>
+                <div key={it.key} className={`flex items-center justify-between py-1 px-1 rounded ${idx === currentIdx ? 'bg-muted' : ''}`}>
                   <div className="truncate max-w-[60%]"><span className="text-muted-foreground">{it.label}</span></div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs">
                       {it.status === 'generating' && it.progress ? `${it.status} (${it.progress}%)` : it.status}
                     </span>
-                    <Button size="sm" variant="outline" onClick={()=> setCurrentIdx(idx)}>Open</Button>
+                    <Button size="sm" variant="outline" onClick={() => setCurrentIdx(idx)}>Open</Button>
                   </div>
                 </div>
               ))}
@@ -916,13 +920,13 @@ export function BuildContent() {
 
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
-          {items.filter(i=>i.pageType==='generated' && i.status==='done').length}/{items.filter(i=>i.pageType==='generated').length} images generated • Total {items.length} pages
+          {items.filter(i => i.pageType === 'generated' && i.status === 'done').length}/{items.filter(i => i.pageType === 'generated').length} images generated • Total {items.length} pages
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4 mr-2" /> Back
           </Button>
-          <Button variant="outline" onClick={()=> setViewerOpen(true)} disabled={spreads.length===0}>View Book</Button>
+          <Button variant="outline" onClick={() => setViewerOpen(true)} disabled={spreads.length === 0}>View Book</Button>
           <Button onClick={exportPdf} disabled={!allDone || exportingPdf}>
             {exportingPdf ? (
               <>
@@ -951,9 +955,9 @@ export function BuildContent() {
             </div>
             {/* Controls */}
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <Button size="sm" variant="outline" onClick={() => setSpreadIdx((i)=> Math.max(0, i-1))} disabled={spreadIdx<=0}>Previous</Button>
-              <div>Spread {spreadIdx+1} of {spreads.length}</div>
-              <Button size="sm" variant="outline" onClick={() => setSpreadIdx((i)=> Math.min(spreads.length-1, i+1))} disabled={spreadIdx>=spreads.length-1}>Next</Button>
+              <Button size="sm" variant="outline" onClick={() => setSpreadIdx((i) => Math.max(0, i - 1))} disabled={spreadIdx <= 0}>Previous</Button>
+              <div>Spread {spreadIdx + 1} of {spreads.length}</div>
+              <Button size="sm" variant="outline" onClick={() => setSpreadIdx((i) => Math.min(spreads.length - 1, i + 1))} disabled={spreadIdx >= spreads.length - 1}>Next</Button>
             </div>
           </div>
         </DialogContent>

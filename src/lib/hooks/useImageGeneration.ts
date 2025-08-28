@@ -197,6 +197,7 @@ export const useImageGeneration = (options: UseImageGenerationOptions = {}): Use
 
       console.log('📤 Sending request to queue client...');
       const token = await getToken();
+      console.log('🔐 Using token:', token ? `${token.substring(0, 20)}...` : 'No token available');
       const response: JobResponse = await queueClient.generateImage(request, token || undefined);
       console.log('✅ Queue client response:', response);
       
