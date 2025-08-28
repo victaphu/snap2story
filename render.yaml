@@ -19,7 +19,7 @@ services:
           name: snap2story-redis
           property: connectionString
       - key: CORS_ORIGINS
-        value: https://your-frontend-domain.com,http://localhost:3000
+        value: https://snap-to-story.netlify.app,http://localhost:3000
       - key: WS_PING_TIMEOUT
         value: "60000"
       - key: WS_PING_INTERVAL
