@@ -11,7 +11,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^5.1.6",
+    "@clerk/express": "^1.7.26",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "bullmq": "^4.15.4",

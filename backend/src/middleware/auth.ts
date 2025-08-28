@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '@clerk/clerk-sdk-node';
+import { verifyToken } from '@clerk/express';
 
 // Verifies Clerk JWTs passed in Authorization: Bearer <token>
 export async function requireClerkAuth(req: Request, res: Response, next: NextFunction) {
@@ -14,14 +14,13 @@ export async function requireClerkAuth(req: Request, res: Response, next: NextFu
     }
     const token = parts[1];
 
-    // Verify using Clerk SDK; requires CLERK_SECRET_KEY in env.
-    // verifyToken returns claims on success, throws on failure
-    const claims = await verifyToken(token, {
+    // Verify using Clerk Express SDK
+    const result = await verifyToken(token, {
       secretKey: process.env.CLERK_SECRET_KEY,
     });
 
     // Attach userId for downstream usage
-    (req as any).userId = claims.sub || claims.userId || claims.sid || null;
+    (req as any).userId = result.sub || result.userId || result.sid || null;
     return next();
   } catch (err) {
     return res.status(401).json({ error: 'Unauthorized' });
