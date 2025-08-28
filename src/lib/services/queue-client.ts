@@ -36,12 +36,18 @@ class QueueClient {
     this.backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
   }
 
-  async generateImage(request: ImageGenerationRequest): Promise<JobResponse> {
+  async generateImage(request: ImageGenerationRequest, token?: string): Promise<JobResponse> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${this.backendUrl}/api/jobs/generate-image`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(request),
     });
 

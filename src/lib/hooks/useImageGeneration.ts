@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { queueClient, ImageGenerationRequest, JobResponse } from '@/lib/services/queue-client';
 import { wsClient, JobProgress } from '@/lib/services/websocket-client';
+import { useAuth } from '@clerk/nextjs';
 
 interface UseImageGenerationOptions {
   onProgress?: (progress: JobProgress) => void;
@@ -20,6 +21,7 @@ interface UseImageGenerationResult {
 
 export const useImageGeneration = (options: UseImageGenerationOptions = {}): UseImageGenerationResult => {
   const { onProgress, onCompleted, onFailed, useWebSocket = true } = options;
+  const { getToken } = useAuth();
   const lastProgressRef = useRef<number>(Date.now());
   const [currentJob, setCurrentJob] = useState<JobProgress | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -194,7 +196,8 @@ export const useImageGeneration = (options: UseImageGenerationOptions = {}): Use
       // Do not clear global WS listeners here; they persist across jobs
 
       console.log('📤 Sending request to queue client...');
-      const response: JobResponse = await queueClient.generateImage(request);
+      const token = await getToken();
+      const response: JobResponse = await queueClient.generateImage(request, token || undefined);
       console.log('✅ Queue client response:', response);
       
       currentJobIdRef.current = response.jobId;
