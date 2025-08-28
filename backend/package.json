@@ -25,10 +25,10 @@
     "openai": "^4.20.1",
     "redis": "^4.6.10",
     "socket.io": "^4.7.4",
+    "@types/cors": "^2.8.19",
     "typescript": "^5.3.3"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
     "tsx": "^4.6.2"
   },
   "engines": {
